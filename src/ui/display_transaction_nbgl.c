@@ -1,0 +1,125 @@
+/*****************************************************************************
+ *   Ledger App Boilerplate.
+ *   (c) 2020 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
+
+#ifdef HAVE_NBGL
+
+#include <stdbool.h>
+#include <string.h>
+
+#include "os.h"
+#include "glyphs.h"
+#include "os_io_seproxyhal.h"
+#include "nbgl_use_case.h"
+#include "io.h"
+#include "bip32.h"
+#include "format.h"
+#include "printer.h"
+
+#include "ui_api.h"
+#include "constants.h"
+#include "../globals.h"
+#include "../sw.h"
+#include "action/validate.h"
+#include "../transaction/types.h"
+
+static char g_amount[30];
+static char g_address[65];
+static char g_tick[30];
+
+static nbgl_layoutTagValue_t pairs[3];
+static nbgl_layoutTagValueList_t pairList;
+
+static void review_choice(bool confirm) {
+    validate_transaction(confirm);
+    if (confirm) {
+        nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, ui_menu_main);
+    } else {
+        nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, ui_menu_main);
+    }
+}
+
+int ui_display_transaction_bs_choice(bool is_blind_signed) {
+    memset(g_amount, 0, sizeof(g_amount));
+    char amount[30] = {0};
+    if (!format_fpu64(amount,
+                      sizeof(amount),
+                      G_context.tx_info.transaction.value,
+                      EXPONENT_SMALLEST_UNIT)) {
+        return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
+    }
+    snprintf(g_amount, sizeof(g_amount), "QUBIC %.*s", sizeof(amount), amount);
+    memset(g_address, 0, sizeof(g_address));
+
+    for (int i = 0; i < 32; i++) {
+        SPRINTF(&g_address[i * 2],
+                "%02x",
+                G_context.tx_info.transaction_qubic.destinationPublicKey[i]);
+    }
+
+    g_address[64] = '\0';
+    print_u64(G_context.tx_info.transaction_qubic.amount, g_amount, sizeof(g_amount));
+    print_u64(G_context.tx_info.transaction_qubic.tick, g_tick, sizeof(g_tick));
+
+    pairs[0].item = "Amount";
+    pairs[0].value = g_amount;
+    pairs[1].item = "Address";
+    pairs[1].value = g_address;
+
+    pairList.nbMaxLinesForValue = 0;
+
+    if (N_storage.settings.display_mode == DisplayModeExpert) {
+        PRINTF("Display Mode Expert\n");
+        pairs[2].item = "Tick";
+        pairs[2].value = g_tick;
+        pairList.nbPairs = 3;
+    } else {
+        pairList.nbPairs = 2;
+    }
+
+    pairList.pairs = pairs;
+
+    if (is_blind_signed) {
+        nbgl_useCaseReviewBlindSigning(TYPE_TRANSACTION,
+                                       &pairList,
+                                       &C_app_boilerplate_64px,
+                                       "Review transaction\nto send QUBIC",
+                                       NULL,
+                                       "Sign transaction\nto send QUBIC",
+                                       NULL,
+                                       review_choice);
+    } else {
+        nbgl_useCaseReview(TYPE_TRANSACTION,
+                           &pairList,
+                           &C_app_boilerplate_64px,
+                           "Review transaction\nto send QUBIC",
+                           NULL,
+                           "Sign transaction\nto send QUBIC",
+                           review_choice);
+    }
+
+    return 0;
+}
+
+int ui_display_blind_signed_transaction(void) {
+    return ui_display_transaction_bs_choice(true);
+}
+
+int ui_display_transaction() {
+    return ui_display_transaction_bs_choice(false);
+}
+
+#endif

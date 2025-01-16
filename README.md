@@ -1,8 +1,19 @@
 [![Ensure compliance with Ledger guidelines](https://github.com/LedgerHQ/app-boilerplate/actions/workflows/guidelines_enforcer.yml/badge.svg)](https://github.com/LedgerHQ/app-boilerplate/actions/workflows/guidelines_enforcer.yml) [![Build and run functional tests using ragger through reusable workflow](https://github.com/LedgerHQ/app-boilerplate/actions/workflows/build_and_functional_tests.yml/badge.svg?branch=master)](https://github.com/LedgerHQ/app-boilerplate/actions/workflows/build_and_functional_tests.yml)
 
-# Ledger Boilerplate Application
+# Ledger Qubic Application
 
-This is a boilerplate application which can be forked to start a new project for the Ledger Nano X/SP, Stax and Flex.
+This app add support for the transfer transactions 
+
+### Current features:
+* Get public key (BIP32)
+* Parse, display and sign transfer transaction
+* Blind sign arbitrary transactions (Enabled via settings)
+
+### Supported Ledger wallet models:
+* Nano SP
+* Nano X
+* Flex
+* Stax
 
 ## Quick start guide
 
@@ -33,8 +44,11 @@ It will allow you, whether you are developing on macOS, Windows or Linux to quic
 @TODO create up to date instructions
 ```
 
-## Load development build into 
+## Loading on a physical device
 
+```
+@TODO create up to date instructions
+```
 
 ## Test
 
@@ -107,3 +121,9 @@ It outputs 3 artifacts:
 - `compiled_app_binaries` within binary files of the build process for each device
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation
+
+## External dependencies
+
+* @TODO expand
+* Ledger official SDK
+* FourQ sample implementation
