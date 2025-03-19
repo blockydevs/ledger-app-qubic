@@ -1,4 +1,3 @@
-
 /*****************************************************************************
  *   Ledger App Boilerplate.
  *   (c) 2020 Ledger SAS.
@@ -30,7 +29,7 @@ static void quit_app_callback(void) {
 
 #define SETTING_INFO_NB 2
 static const char* const info_types[SETTING_INFO_NB] = {"Version", "Developer"};
-static const char* const info_contents[SETTING_INFO_NB] = {APPVERSION, "Ledger"};
+static const char* const info_contents[SETTING_INFO_NB] = {APPVERSION, "BlockyDevs"};
 
 static const nbgl_contentInfoList_t infoList = {
     .nbInfos = SETTING_INFO_NB,
@@ -65,7 +64,7 @@ static const nbgl_genericContents_t settingContents = {.callbackCallNeeded = fal
                                                        .contentsList = contents,
                                                        .nbContents = SETTING_CONTENTS_NB};
 
-static void settings_controls_callback(int token, uint8_t index, int page) {
+static void settings_controls_callback(const int token, const uint8_t index, const int page) {
     UNUSED(index);
     UNUSED(page);
     uint8_t new_setting;

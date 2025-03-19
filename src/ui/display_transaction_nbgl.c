@@ -15,11 +15,13 @@
  *  limitations under the License.
  *****************************************************************************/
 
+
 #ifdef HAVE_NBGL
 
 #include <stdbool.h>
 #include <string.h>
 
+#include "address.h"
 #include "os.h"
 #include "glyphs.h"
 #include "os_io_seproxyhal.h"
@@ -39,8 +41,9 @@
 static char g_amount[30];
 static char g_address[65];
 static char g_tick[30];
+static char g_public_key[65];
 
-static nbgl_layoutTagValue_t pairs[3];
+static nbgl_layoutTagValue_t pairs[4];
 static nbgl_layoutTagValueList_t pairList;
 
 static void review_choice(bool confirm) {
@@ -57,37 +60,37 @@ int ui_display_transaction_bs_choice(bool is_blind_signed) {
     char amount[30] = {0};
     if (!format_fpu64(amount,
                       sizeof(amount),
-                      G_context.tx_info.transaction.value,
+                      G_context.tx_info.transaction_qubic.amount,
                       EXPONENT_SMALLEST_UNIT)) {
         return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
     }
-    snprintf(g_amount, sizeof(g_amount), "QUBIC %.*s", sizeof(amount), amount);
     memset(g_address, 0, sizeof(g_address));
 
-    for (int i = 0; i < 32; i++) {
-        SPRINTF(&g_address[i * 2],
-                "%02x",
-                G_context.tx_info.transaction_qubic.destinationPublicKey[i]);
-    }
-
+    get_identity_from_public_key(G_context.tx_info.transaction_qubic.destination_public_key, g_address, false);
     g_address[64] = '\0';
+
+    get_identity_from_public_key(G_context.tx_info.transaction_qubic.source_public_key, g_public_key, false);
+    g_public_key[64] = '\0';
+
     print_u64(G_context.tx_info.transaction_qubic.amount, g_amount, sizeof(g_amount));
     print_u64(G_context.tx_info.transaction_qubic.tick, g_tick, sizeof(g_tick));
 
     pairs[0].item = "Amount";
     pairs[0].value = g_amount;
-    pairs[1].item = "Address";
-    pairs[1].value = g_address;
+    pairs[1].item = "From address";
+    pairs[1].value = g_public_key;
+    pairs[2].item = "To address";
+    pairs[2].value = g_address;
 
     pairList.nbMaxLinesForValue = 0;
 
     if (N_storage.settings.display_mode == DisplayModeExpert) {
         PRINTF("Display Mode Expert\n");
-        pairs[2].item = "Tick";
-        pairs[2].value = g_tick;
-        pairList.nbPairs = 3;
+        pairs[3].item = "Tick";
+        pairs[3].value = g_tick;
+        pairList.nbPairs = 4;
     } else {
-        pairList.nbPairs = 2;
+        pairList.nbPairs = 3;
     }
 
     pairList.pairs = pairs;

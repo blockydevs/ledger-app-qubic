@@ -18,8 +18,13 @@
 #include <stdbool.h>  // bool
 
 #include "crypto_helpers.h"
+#include "io.h"
 
 #include "validate.h"
+
+#include "address.h"
+#include "FourQ_api.h"
+#include "key_utils.h"
 #include "../../sw.h"
 #include "../../globals.h"
 #include "../../helper/send_response.h"
@@ -33,28 +38,70 @@ void validate_pubkey(bool choice) {
 }
 
 static int crypto_sign_message(void) {
-    uint32_t info = 0;
     size_t sig_len = sizeof(G_context.tx_info.signature);
 
-    cx_err_t error = bip32_derive_ecdsa_sign_hash_256(CX_CURVE_256K1,
-                                                      G_context.bip32_path,
-                                                      G_context.bip32_path_len,
-                                                      CX_RND_RFC6979 | CX_LAST,
-                                                      CX_SHA256,
-                                                      G_context.tx_info.m_hash,
-                                                      sizeof(G_context.tx_info.m_hash),
-                                                      G_context.tx_info.signature,
-                                                      &sig_len,
-                                                      &info);
-    if (error != CX_OK) {
+
+    // Allocate 64 bytes to respect Syscall API but only 32 will be used
+    cx_ecfp_256_private_key_t raw_private_key = {0};
+    char seed[SEED_LENGTH] = {0};
+
+    const cx_err_t cx_err_priv = bip32_derive_with_seed_init_privkey_256(
+        HDW_NORMAL,
+        CX_CURVE_SECP256K1,
+        G_context.bip32_path,
+        G_context.bip32_path_len,
+        &raw_private_key,
+        NULL,
+        NULL,
+        0
+    );
+
+    if (CX_OK != cx_err_priv) {
+        THROW(cx_err_priv);
+    }
+
+    PRINTF("Generating Qubic seed from derived BIP32 key\n");
+    internal_key_to_seed(raw_private_key.d, sizeof(raw_private_key.d), seed);
+
+    uint8_t subseed[SUBSEED_LENGTH] = {0};
+    get_subseed_from_seed(seed, subseed);
+
+    uint8_t public_key[PUBKEY_LENGTH] = {0};
+    SchnorrQ_KeyGeneration(subseed, public_key);
+
+    if (N_storage.settings.allow_blind_sign != BlindSignEnabled
+        && memcmp(public_key, G_context.tx_info.transaction_qubic.source_public_key, PUBKEY_LENGTH) != 0) {
+        PRINTF("Invalid public key\n");
+        return -1;
+    }
+
+#ifdef DEBUG
+    PRINTF("Public key: ");
+    for (int j = 0; j < PUBKEY_LENGTH; j++) {
+        PRINTF("%02X", public_key[j]);
+    }
+    PRINTF("\n");
+    PRINTF("Transaction source public key: ");
+    for (int j = 0; j < PUBKEY_LENGTH; j++) {
+        PRINTF("%02X", G_context.tx_info.transaction_qubic.source_public_key[j]);
+    }
+    PRINTF("\n");
+#endif
+
+
+    ECCRYPTO_STATUS error = SchnorrQ_Sign(subseed, public_key, G_context.tx_info.m_hash,
+                                          sizeof(G_context.tx_info.m_hash), G_context.tx_info.signature);
+
+    if (error != ECCRYPTO_SUCCESS) {
         return -1;
     }
 
     PRINTF("Signature: %.*H\n", sig_len, G_context.tx_info.signature);
 
     G_context.tx_info.signature_len = sig_len;
-    G_context.tx_info.v = (uint8_t)(info & CX_ECCINFO_PARITY_ODD);
-
+    explicit_bzero(public_key, PUBKEY_LENGTH);
+    explicit_bzero(seed, SEED_LENGTH);
+    explicit_bzero(subseed, SUBSEED_LENGTH);
     return 0;
 }
 

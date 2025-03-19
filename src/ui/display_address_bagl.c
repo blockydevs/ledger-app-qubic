@@ -31,31 +31,30 @@
 #include "../sw.h"
 #include "../address.h"
 #include "action/validate.h"
-#include "../transaction/types.h"
 
 static action_validate_cb g_validate_callback;
-static char g_address[65];
+static char g_address[PUBLIC_IDENTITY_LENGTH + 1];
 
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
 UX_STEP_NOCB(ux_display_address,
              bnnn_paging,
              {
-                 .title = "Address",
-                 .text = G_context.pk_info.raw_public_key,
+             .title = "Address",
+             .text = g_address,
              });
 UX_STEP_CB(ux_display_approve,
            pb,
            (*g_validate_callback)(true),
            {
-               &C_icon_validate_14,
-               "Approve",
+           &C_icon_validate_14,
+           "Approve",
            });
 UX_STEP_CB(ux_display_reject,
            pb,
            (*g_validate_callback)(false),
            {
-               &C_icon_crossmark,
-               "Reject",
+           &C_icon_crossmark,
+           "Reject",
            });
 UX_FLOW(ux_display_pubkey_flow,
         &ux_display_confirm_addr_step,
@@ -74,14 +73,9 @@ int ui_display_address() {
         return io_send_sw(SW_BAD_STATE);
     }
     memset(g_address, 0, sizeof(g_address));
-    uint8_t address[ADDRESS_LEN] = {0};
-    // if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
-    //     return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
-    // }
-    //
-    // if (format_hex(address, sizeof(address), g_address, sizeof(g_address)) == -1) {
-    //     return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
-    // }
+
+    //Produce Qubic public ID
+    get_identity_from_public_key(G_context.pk_info.raw_public_key, g_address, false);
 
     g_validate_callback = &ui_action_validate_pubkey;
 

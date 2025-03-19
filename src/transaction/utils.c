@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Ledger App Boilerplate.
+*   Ledger App Boilerplate.
  *   (c) 2020 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,7 @@
 
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
-#include <stddef.h>   // size_t
 #include <string.h>   // memmove
-
-#include "write.h"
-#include "varint.h"
-
-#include "serialize.h"
 
 #if defined(TEST) || defined(FUZZ)
 #include "assert.h"
@@ -32,38 +26,33 @@
 #include "ledger_assert.h"
 #endif
 
-int transaction_serialize(const transaction_t *tx, uint8_t *out, size_t out_len) {
-    size_t offset = 0;
+#include "types.h"
 
-    LEDGER_ASSERT(tx != NULL, "NULL tx");
-    LEDGER_ASSERT(out != NULL, "NULL out");
+bool transaction_utils_check_encoding(const uint8_t *memo, uint64_t memo_len) {
+    LEDGER_ASSERT(memo != NULL, "NULL memo");
 
-    if (8 + ADDRESS_LEN + 8 + varint_size(tx->memo_len) + tx->memo_len > out_len) {
-        return -1;
+    for (uint64_t i = 0; i < memo_len; i++) {
+        if (memo[i] > 0x7F) {
+            return false;
+        }
     }
 
-    // nonce
-    write_u64_be(out, offset, tx->nonce);
-    offset += 8;
+    return true;
+}
 
-    // to
-    memmove(out + offset, tx->to, ADDRESS_LEN);
-    offset += ADDRESS_LEN;
+bool transaction_utils_format_memo(const uint8_t *memo,
+                                   uint64_t memo_len,
+                                   char *dst,
+                                   uint64_t dst_len) {
+    LEDGER_ASSERT(memo != NULL, "NULL memo");
+    LEDGER_ASSERT(dst != NULL, "NULL dst");
 
-    // value
-    write_u64_be(out, offset, tx->value);
-    offset += 8;
-
-    // memo length
-    int varint_len = varint_write(out, offset, tx->memo_len);
-    if (varint_len < 0) {
-        return -1;
+    if (memo_len > MAX_MEMO_LEN || dst_len < memo_len + 1) {
+        return false;
     }
-    offset += varint_len;
 
-    // memo
-    memmove(out + offset, tx->memo, tx->memo_len);
-    offset += tx->memo_len;
+    memmove(dst, memo, memo_len);
+    dst[memo_len] = '\0';
 
-    return (int) offset;
+    return true;
 }

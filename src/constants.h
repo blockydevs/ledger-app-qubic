@@ -23,14 +23,16 @@
 /**
  * Maximum transaction length (bytes).
  */
-#define MAX_TRANSACTION_LEN 510
+#define MAX_TRANSACTION_LEN 1024
 
 /**
  * Maximum signature length (bytes).
  */
-#define MAX_DER_SIG_LEN 72
+#define MAX_DER_SIG_LEN 64
 
 /**
  * Exponent used to convert mBOL to BOL unit (N BOL = N * 10^3 mBOL).
  */
 #define EXPONENT_SMALLEST_UNIT 3
+
+#define TRANSACTION_DIGEST_LEN 32

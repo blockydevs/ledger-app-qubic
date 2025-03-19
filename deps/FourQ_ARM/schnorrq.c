@@ -11,13 +11,13 @@
 ***********************************************************************************/
 
 #include "FourQ_internal.h"
-#include "FourQ_params.h"
 #include "../random/random.h"
 #include "../sha512/sha512.h"
 #include <malloc.h>
 #include <string.h>
-
 #include "k12.h"
+
+#define PUBLIC_KEY_LENGTH 32
 
 ECCRYPTO_STATUS SchnorrQ_KeyGeneration(const unsigned char *SecretKey, unsigned char *PublicKey) {
     // SchnorrQ public key generation
@@ -72,34 +72,23 @@ ECCRYPTO_STATUS SchnorrQ_Sign(const unsigned char *SecretKey, const unsigned cha
     // Inputs: 32-byte SecretKey, 32-byte PublicKey, and Message of size SizeMessage in bytes
     // Output: 64-byte Signature
     point_t R;
-    unsigned char k[64], r[64], h[64];
-    digit_t *H = (digit_t *) h;
+    unsigned char k[64] = {0};
+    unsigned char r[64] = {0};
+    unsigned char h[64] = {0};
+    digit_t *H = h;
     digit_t *S = (digit_t *) (Signature + 32);
-    unsigned char temp[32 + 64];
-
+    unsigned char temp[32 + 64] = {0};
 
     kangaroo_twelve(SecretKey, 32, k, 64);
-    PRINTF("K:");
-    for (int i = 0; i < 64; i++) {
-        PRINTF("%02X", k[i]);
-    }
-    PRINTF("\n");
 
     memmove(temp + 32, k + 32, 32);
 
-    //@TODO size check required, buffer overflow possible
+    if (SizeMessage > PUBLIC_KEY_LENGTH) {
+        return ECCRYPTO_ERROR_INVALID_PARAMETER;
+    }
     memmove(temp + 64, Message, SizeMessage);
 
-    PRINTF("temp + 32: %d\n", temp[32]);
-    PRINTF("temp + 64: %d\n", temp[64]);
-
     kangaroo_twelve(temp + 32, 32 + 32, r, 64);
-
-    PRINTF("R:");
-    for (int i = 0; i < 64; i++) {
-        PRINTF("%02X", r[i]);
-    }
-    PRINTF("\n");
 
     ecc_mul_fixed((digit_t *) r, R);
     encode(R, Signature); // Encode lowest 32 bytes of signature

@@ -21,6 +21,7 @@
 #include <string.h>   // memset, explicit_bzero
 
 #include "os.h"
+#include "io.h"
 #include "buffer.h"
 
 
@@ -32,7 +33,6 @@
 #include "../types.h"
 #include "../ui/ui_api.h"
 #include "../helper/send_response.h"
-#include "k12.h"
 #include "key_utils.h"
 #include "sw.h"
 #include "lib_standard_app/crypto_helpers.h"
@@ -52,9 +52,7 @@ int handler_get_public_key(buffer_t *cdata, const bool display) {
 
     // Allocate 64 bytes to respect Syscall API but only 32 will be used
     cx_ecfp_256_private_key_t raw_private_key = {0};
-    uint8_t chain_code[40] = {0};
     char seed[SEED_LENGTH] = {0};
-    char publicIdentity[128] = {0};
 
     const cx_err_t cx_err_priv = bip32_derive_with_seed_init_privkey_256(
         HDW_NORMAL,
@@ -62,7 +60,7 @@ int handler_get_public_key(buffer_t *cdata, const bool display) {
         G_context.bip32_path,
         G_context.bip32_path_len,
         &raw_private_key,
-        chain_code,
+        NULL,
         NULL,
         0
     );
@@ -70,6 +68,19 @@ int handler_get_public_key(buffer_t *cdata, const bool display) {
     if (CX_OK != cx_err_priv) {
         THROW(cx_err_priv);
     }
+
+    PRINTF("Generating Qubic seed from derived BIP32 key\n");
+    internal_key_to_seed(raw_private_key.d, sizeof(raw_private_key.d), seed);
+
+
+    uint8_t subseed[SUBSEED_LENGTH] = {0};
+    get_subseed_from_seed(seed, subseed);
+
+
+    uint8_t public_key[PUBKEY_LENGTH] = {0};
+    SchnorrQ_KeyGeneration(subseed, public_key);
+
+#ifdef DEBUG
 
     PRINTF("Derivation path length: %d\n", G_context.bip32_path_len);
     PRINTF("APDU derivation path:\n");
@@ -80,20 +91,10 @@ int handler_get_public_key(buffer_t *cdata, const bool display) {
     PRINTF("\n");
 
     PRINTF("Raw private key (ledger):\n");
-    for (int j = 0; j < 32; j++) {
+    for (int j = 0; j < PUBKEY_LENGTH; j++) {
         PRINTF("%02X", raw_private_key.d[j]);
     }
     PRINTF("\n");
-
-    PRINTF("Chain code: \n");
-    for (int j = 0; j < 40; j++) {
-        PRINTF("%02X", chain_code[j]);
-    }
-    PRINTF("\n");
-
-    PRINTF("Generating Qubic seed from derived BIP32 key\n");
-
-    internal_key_to_seed(raw_private_key.d, seed);
 
     PRINTF("Qubic seed: \n");
     for (int j = 0; j < 55; j++) {
@@ -101,33 +102,24 @@ int handler_get_public_key(buffer_t *cdata, const bool display) {
     }
     PRINTF("\n");
 
-    uint8_t subseed[32] = {0};
-    get_subseed_from_seed(seed, subseed);
-
     PRINTF("Subseed value:\n");
-    for (int j = 0; j < 32; j++) {
+    for (int j = 0; j < SUBSEED_LENGTH; j++) {
         PRINTF("%02X", subseed[j]);
     }
     PRINTF("\n");
 
-    uint8_t publicKey[32] = {0};
-    SchnorrQ_KeyGeneration(subseed, publicKey);
-
     PRINTF("Public key: ");
-    for (int j = 0; j < 32; j++) {
-        PRINTF("%02X", publicKey[j]);
+    for (int j = 0; j < PUBKEY_LENGTH; j++) {
+        PRINTF("%02X", public_key[j]);
     }
     PRINTF("\n");
 
-    get_identity_from_public_key(publicKey, publicIdentity, false);
+#endif
 
-    PRINTF("Derived identity: ");
-    for (int j = 0; j < 60; j++) {
-        PRINTF("%c", publicIdentity[j]);
-    }
-    PRINTF("\n");
-
-    memcpy(G_context.pk_info.raw_public_key, publicIdentity, 60);
+    memcpy(G_context.pk_info.raw_public_key, public_key, PUBKEY_LENGTH);
+    explicit_bzero(public_key, PUBKEY_LENGTH);
+    explicit_bzero(seed, SEED_LENGTH);
+    explicit_bzero(subseed, SUBSEED_LENGTH);
 
     if (display) {
         return ui_display_address();

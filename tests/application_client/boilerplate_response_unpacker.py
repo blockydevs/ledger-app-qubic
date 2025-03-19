@@ -1,3 +1,4 @@
+import sys
 from typing import Tuple
 from struct import unpack
 
@@ -7,6 +8,10 @@ def pop_sized_buf_from_buffer(buffer:bytes, size:int) -> Tuple[bytes, bytes]:
 
 # remainder, data_len, data
 def pop_size_prefixed_buf_from_buf(buffer:bytes) -> Tuple[bytes, int, bytes]:
+    data_len = sys.getsizeof(buffer)
+    return buffer[1+data_len:], data_len, buffer[1:data_len+1]
+
+def pop_size_prefixed_buf_from_buf_name(buffer:bytes) -> Tuple[bytes, int, bytes]:
     data_len = buffer[0]
     return buffer[1+data_len:], data_len, buffer[1:data_len+1]
 
@@ -34,9 +39,9 @@ def unpack_get_version_response(response: bytes) -> Tuple[int, int, int]:
 #            unused (var)
 def unpack_get_app_and_version_response(response: bytes) -> Tuple[str, str]:
     response, _ = pop_sized_buf_from_buffer(response, 1)
-    response, _, app_name_raw = pop_size_prefixed_buf_from_buf(response)
-    response, _, version_raw = pop_size_prefixed_buf_from_buf(response)
-    response, _, _ = pop_size_prefixed_buf_from_buf(response)
+    response, _, app_name_raw = pop_size_prefixed_buf_from_buf_name(response)
+    response, _, version_raw = pop_size_prefixed_buf_from_buf_name(response)
+    response, _, _ = pop_size_prefixed_buf_from_buf_name(response)
 
     assert len(response) == 0
 
@@ -47,15 +52,13 @@ def unpack_get_app_and_version_response(response: bytes) -> Tuple[str, str]:
 #            pub_key (var)
 #            chain_code_len (1)
 #            chain_code (var)
-def unpack_get_public_key_response(response: bytes) -> Tuple[int, bytes, int, bytes]:
+def unpack_get_public_key_response(response: bytes) -> Tuple[int, bytes]:
     response, pub_key_len, pub_key = pop_size_prefixed_buf_from_buf(response)
-    response, chain_code_len, chain_code = pop_size_prefixed_buf_from_buf(response)
 
     assert pub_key_len == 65
-    assert chain_code_len == 32
     assert len(response) == 0
 
-    return pub_key_len, pub_key, chain_code_len, chain_code
+    return pub_key_len, pub_key
 
 # Unpack from response:
 # response = der_sig_len (1)

@@ -18,50 +18,51 @@
 
 #include "deserialize.h"
 #include "types.h"
+#include "io.h"
 
 #include <globals.h>
 
 parser_status_e deserialize_transaction(const buffer_t *buf) {
-    if (buf == NULL || buf->size > MAX_TX_LEN || buf->size != sizeof(transaction_qubic_t)) {
+    if (buf == NULL || buf->size > MAX_TX_LEN || (buf->size - buf->offset) != sizeof(transaction_qubic_t)) {
         return WRONG_LENGTH_ERROR;
     }
 
-    memcpy(&G_context.tx_info.transaction_qubic, buf->ptr, sizeof(transaction_qubic_t));
+    memcpy(&G_context.tx_info.transaction_qubic, buf->ptr + buf->offset, sizeof(transaction_qubic_t));
 
-    int destination_pkey_counter = 0;
-    for (int i = 0; (unsigned) i < sizeof(G_context.tx_info.transaction_qubic.destinationPublicKey); i++) {
-        if (G_context.tx_info.transaction_qubic.destinationPublicKey[i] == 0) {
-            destination_pkey_counter++;
-        }
+    // Cap the size to ADDRESS_LEN to avoid any risk of overflowing buffers during operations
+    if (memcmp(G_context.tx_info.transaction_qubic.destination_public_key,
+               (uint8_t[ADDRESS_LEN]){0}, ADDRESS_LEN) == 0) {
+        return WRONG_DESTINATION_ADDRESS_ERROR;
     }
 
-    if (destination_pkey_counter ==
-        sizeof(G_context.tx_info.transaction_qubic.destinationPublicKey)) {
-        return WRONG_DESTINATION_ADDRESS_ERROR;
+    if (memcmp(G_context.tx_info.transaction_qubic.source_public_key,
+               (uint8_t[ADDRESS_LEN]){0}, ADDRESS_LEN) == 0) {
+        return WRONG_SOURCE_ADDRESS_ERROR;
     }
 
     if (G_context.tx_info.transaction_qubic.amount == 0) {
         return VALUE_PARSING_ERROR;
     }
 
+#ifdef DEBUG
     PRINTF("req_type %d\n", G_context.req_type);
-
-    PRINTF("sourcePublicKey: ");
+    PRINTF("Source public key: ");
     for (int i = 0; i < 32; i++) {
-        PRINTF("%02x", G_context.tx_info.transaction_qubic.sourcePublicKey[i]);
+        PRINTF("%02x", G_context.tx_info.transaction_qubic.source_public_key[i]);
     }
     PRINTF("\n");
 
-    PRINTF("destinationPublicKey: ");
+    PRINTF("Destination public key: ");
     for (int i = 0; i < 32; i++) {
-        PRINTF("%02x", G_context.tx_info.transaction_qubic.destinationPublicKey[i]);
+        PRINTF("%02x", G_context.tx_info.transaction_qubic.destination_public_key[i]);
     }
     PRINTF("\n");
 
-    PRINTF("inputType %d\n", G_context.tx_info.transaction_qubic.inputType);
-    PRINTF("inputSize %d\n", G_context.tx_info.transaction_qubic.inputSize);
-    PRINTF("amount %d\n", G_context.tx_info.transaction_qubic.amount);
-    PRINTF("tick %d\n", G_context.tx_info.transaction_qubic.tick);
+    PRINTF("Input type %d\n", G_context.tx_info.transaction_qubic.inputType);
+    PRINTF("Input size %d\n", G_context.tx_info.transaction_qubic.inputSize);
+    PRINTF("Amount %d\n", G_context.tx_info.transaction_qubic.amount);
+    PRINTF("Target tick %d\n", G_context.tx_info.transaction_qubic.tick);
 
+#endif
     return PARSING_OK;
 }

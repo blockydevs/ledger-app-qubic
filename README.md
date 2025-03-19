@@ -2,7 +2,7 @@
 
 # Ledger Qubic Application
 
-This app add support for the transfer transactions 
+This app add support for the transfer transactions
 
 ### Current features:
 * Get public key (BIP32)
@@ -14,6 +14,7 @@ This app add support for the transfer transactions
 * Nano X
 * Flex
 * Stax
+
 
 ## Quick start guide
 
@@ -38,16 +39,88 @@ It will allow you, whether you are developing on macOS, Windows or Linux to quic
 
 :information_source: The terminal tab of VSCode will show you what commands the extension runs behind the scene.
 
-## Run in emulator
+### With a terminal
 
-```
-@TODO create up to date instructions
+The [ledger-app-dev-tools](https://github.com/LedgerHQ/ledger-app-builder/pkgs/container/ledger-app-builder%2Fledger-app-dev-tools) docker image contains all the required tools and libraries to **build**, **test** and **load** an application.
+
+You can download it from the ghcr.io docker repository:
+
+```shell
+docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
 ```
 
-## Loading on a physical device
+You can then enter this development environment by executing the following command from the directory of the application `git` repository:
 
+**Linux (Ubuntu)**
+
+```shell
+sudo docker run --rm -ti --user "$(id -u):$(id -g)" --net=host --privileged -v "/dev/bus/usb:/dev/bus/usb" -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
 ```
-@TODO create up to date instructions
+
+**macOS**
+
+```shell
+sudo docker run  --rm -ti --user "$(id -u):$(id -g)" --net=host --privileged -v "$(pwd -P):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+```
+
+**Windows (with PowerShell)**
+
+```shell
+docker run --rm -ti --privileged --net=host -v "$(Get-Location):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+```
+
+The application's code will be available from inside the docker container, you can proceed to the following compilation steps to build your app.
+
+## Compilation and load
+
+To easily setup a development environment for compilation and loading on a physical device, you can use the [VSCode integration](#with-vscode) whether you are on Linux, macOS or Windows.
+
+If you prefer using a terminal to perform the steps manually, you can use the guide below.
+
+### Compilation
+
+Setup a compilation environment by following the [shell with docker approach](#with-a-terminal).
+
+From inside the container, use the following command to build the app :
+
+```shell
+make DEBUG=1  # compile optionally with PRINTF
+```
+
+You can choose which device to compile and load for by setting the `BOLOS_SDK` environment variable to the following values :
+
+* `BOLOS_SDK=$NANOX_SDK`
+* `BOLOS_SDK=$NANOSP_SDK`
+* `BOLOS_SDK=$STAX_SDK`
+
+By default this variable is set to build/load for Nano S+.
+
+### Loading on a physical device
+
+:information_source: Your physical device must be connected, unlocked and the screen showing the dashboard (not inside an application).
+
+**macOS / Linux / Windows**
+
+:information_source: It is assumed you have [Python](https://www.python.org/downloads/) installed on your computer.
+
+Run these commands on your host from the app's source folder once you have [built the app](#compilation-and-load) for the device you want :
+
+```shell
+# Install Python virtualenv
+python3 -m pip install virtualenv 
+# Create the 'ledger' virtualenv
+python3 -m virtualenv ledger
+```
+
+Enter the Python virtual environment
+
+* macOS : `source ledger/bin/activate`
+
+```shell
+# Install Ledgerblue (tool to load the app)
+python3 -m pip install ledgerblue 
+# Load the app.
+python3 -m ledgerblue.runScript --scp --fileName bin/app.apdu --elfFile bin/app.elf
 ```
 
 ## Test
@@ -121,6 +194,15 @@ It outputs 3 artifacts:
 - `compiled_app_binaries` within binary files of the build process for each device
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation
+
+## Are you developing an application for Ledger devices?
+
+If so, This boilerplate will help you get started.
+
+For a smooth and quick integration:
+
+- See the developers’ documentation on the [Developer Portal](https://developers.ledger.com/), and
+- [Go on Discord](https://developers.ledger.com/discord-pro/) to chat with developer support and the developer community.
 
 ## External dependencies
 

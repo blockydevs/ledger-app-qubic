@@ -1,80 +1,90 @@
-
+#include <string.h>
 #include "utils.h"
+#include <stdbool.h>
 
-void get_public_key(uint8_t publicKeyArray[static PUBKEY_LENGTH],
-                    const uint32_t *derivationPath,
-                    size_t pathLength) {
-    uint8_t rawPubkey[65];
-    cx_err_t cx_err;
 
-    //@TODO add Qubic flow here
+static const char BASE26_ALPHABET[] = {
+    'a', 'b', 'c',
+    'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+};
 
-    cx_err = bip32_derive_with_seed_get_pubkey_256(HDW_NORMAL,
-                                                   CX_CURVE_SECP256K1,
-                                                   derivationPath,
-                                                   pathLength,
-                                                   rawPubkey,
-                                                   NULL,
-                                                   CX_SHA512,
-                                                   NULL,
-                                                   0);
+#define ALPHABET_LENGTH 26
+#define PADDING_CHAR 'z'
+#define WORKING_BUFFER_SIZE 32
+#define MAX_RESULT_LENGTH 55
 
-    if (CX_OK != cx_err) {
-        THROW(cx_err);
+int pad_result_with_z(char *target_string, const size_t target_length) {
+    const size_t current_length = strlen(target_string);
+
+    // If the current length is less than the target, pad with 'z' at the beginning
+    if (current_length < target_length) {
+        const size_t padding_length = target_length - current_length;
+        memmove(target_string + padding_length, target_string, current_length + 1);
+        memset(target_string, PADDING_CHAR, padding_length);
     }
-
-    for (int i = 0; i < PUBKEY_LENGTH; i++) {
-        publicKeyArray[i] = rawPubkey[PUBKEY_LENGTH];
-    }
-    if ((rawPubkey[PUBKEY_LENGTH] & 1) != 0) {
-        publicKeyArray[PUBKEY_LENGTH - 1] |= 0x80;
-    }
+    return 0;
 }
 
-static const char BASE26_ALPHABET[] = {'a', 'b', 'c',
-                                       'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'o', 'p',
-                                       'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+/**
+ * Encodes input hex string into base26 string representation
+ * Output buffer does not contain null terminator
+ */
+int encode_base26(const uint8_t *hex_input, const size_t input_length, char *output, const size_t output_size) {
+    if (output_size > MAX_RESULT_LENGTH) {
+        //Exceeded max output length
+        return 1;
+    }
 
-int encode_base26(const void *in, size_t length, char *out, size_t maxoutlen) {
-    uint8_t tmp[64];
-    uint8_t buffer[64];
-    uint8_t j;
-    size_t start_at;
-    size_t zero_count = 0;
-    if (length > sizeof(tmp)) {
-        return INVALID_PARAMETER;
+    if (input_length > WORKING_BUFFER_SIZE) {
+        return 1;
     }
-    memmove(tmp, in, length);
-    while ((zero_count < length) && (tmp[zero_count] == 0)) {
-        ++zero_count;
+
+    if (input_length < 1) {
+        return 1;
     }
-    j = 2 * length;
-    start_at = zero_count;
-    while (start_at < length) {
-        uint16_t remainder = 0;
-        size_t div_loop;
-        for (div_loop = start_at; div_loop < length; div_loop++) {
-            uint16_t digit256 = (uint16_t) (tmp[div_loop] & 0xff);
-            uint16_t tmp_div = remainder * 256 + digit256;
-            tmp[div_loop] = (uint8_t) (tmp_div / 26);
-            remainder = (tmp_div % 26);
+
+    uint8_t temporary_working_buffer[WORKING_BUFFER_SIZE];
+    char result[MAX_RESULT_LENGTH];
+    explicit_bzero(result, sizeof(result));
+
+    memcpy(temporary_working_buffer, hex_input, input_length);
+
+    size_t result_index = MAX_RESULT_LENGTH - 1;
+    size_t start_index = MAX_RESULT_LENGTH;
+
+    bool is_zero = false;
+    do {
+        uint32_t remainder = 0;
+
+        for (size_t i = 0; i < input_length; ++i) {
+            const uint32_t dividend = (remainder << 8) | temporary_working_buffer[i];
+            temporary_working_buffer[i] = dividend / ALPHABET_LENGTH;
+            remainder = dividend % ALPHABET_LENGTH;
         }
-        if (tmp[start_at] == 0) {
-            ++start_at;
+
+        result[result_index--] = BASE26_ALPHABET[remainder];
+
+        if(start_index == MAX_RESULT_LENGTH) {
+            start_index = result_index + 1;
         }
-        buffer[--j] = (uint8_t) BASE26_ALPHABET[remainder];
+
+        is_zero = true;
+        for (size_t i = 0; i < input_length; ++i) {
+            if (temporary_working_buffer[i] != 0) {
+                is_zero = false;
+                break;
+            }
+        }
+    } while (!is_zero);
+
+    size_t converted_length = MAX_RESULT_LENGTH - (result_index + 1);
+
+    if(converted_length > output_size) {
+        return 0x7;
     }
-    while ((j < (2 * length)) && (buffer[j] == BASE26_ALPHABET[0])) {
-        ++j;
-    }
-    while (zero_count-- > 0) {
-        buffer[--j] = BASE26_ALPHABET[0];
-    }
-    length = 2 * length - j;
-    if (maxoutlen < length + 1) {
-        return EXCEPTION_OVERFLOW;
-    }
-    memmove(out, (buffer + j), length);
-    out[length] = '\0';
+
+    strncpy(output, &result[result_index + 1], converted_length);
+
     return 0;
 }

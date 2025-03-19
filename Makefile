@@ -30,7 +30,7 @@ APPNAME = "Qubic"
 # Application version
 APPVERSION_M = 0
 APPVERSION_N = 1
-APPVERSION_P = 0
+APPVERSION_P = 2
 APPVERSION = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 # Application source files
@@ -55,8 +55,7 @@ CURVE_APP_LOAD_PARAMS = secp256k1
 # Most application will have to request a path according to the BIP-0044
 # and SLIP-0044 standards.
 # If your app needs it, you can specify multiple path by using:
-# `PATH_APP_LOAD_PARAMS = "44'/1'" "45'/1'"`
-PATH_APP_LOAD_PARAMS = "44'/1'"   # purpose=coin(44) / coin_type=Testnet(1)
+PATH_APP_LOAD_PARAMS = "44'/83293'"   # purpose=coin(44) / coin_type=Testnet(1)
 
 # Setting to allow building variant applications
 # - <VARIANT_PARAM> is the name of the parameter which should be set
@@ -96,13 +95,12 @@ ENABLE_NBGL_QRCODE = 1
 APP_SOURCE_PATH += deps/K12
 APP_SOURCE_PATH += deps/crypto
 APP_SOURCE_PATH += deps/FourQ_ARM
-APP_SOURCE_PATH += deps/sha512
 
 # Allow usage of function from lib_standard_app/crypto_helpers.c
 APP_SOURCE_FILES += ${BOLOS_SDK}/lib_standard_app/crypto_helpers.c
 
 # Disable compiler optimizations
-#CFLAGS += -g -O0
+# CFLAGS += -Og
 
 ########################################
 #          Features disablers          #

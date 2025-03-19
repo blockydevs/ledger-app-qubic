@@ -21,6 +21,7 @@
 #include <string.h>   // memset, explicit_bzero
 
 #include "cx.h"
+#include "io.h"
 #include "buffer.h"
 #include "sign_tx.h"
 #include "../sw.h"
@@ -31,13 +32,13 @@
 
 #include <os_pic.h>
 
-cx_err_t k12_hash(const uint8_t *in, size_t in_len, uint8_t digest[static CX_KECCAK_256_SIZE]) {
-    //@TODO remove all references to SHA-3
-    return cx_keccak_256_hash(in, in_len, digest);
-}
+#include "k12.h"
+
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     PRINTF("Expert mode: %d.\n", N_storage.settings.display_mode);
+    PRINTF("Chunk: %d\n", chunk);
+    PRINTF("More: %d\n", more);
 
     if (chunk == 0) {
         // first APDU, parse BIP32 path
@@ -45,6 +46,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         G_context.req_type = CONFIRM_TRANSACTION;
         G_context.state = STATE_NONE;
 
+        PRINTF("Parsing BIP32 path\n");
         if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
             !buffer_read_bip32_path(cdata,
                                     G_context.bip32_path,
@@ -52,45 +54,56 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(SW_WRONG_DATA_LENGTH);
         }
 
-        return io_send_sw(SW_OK);
+        // One byte is used to represent the amount of path chunks;
+        const uint8_t derivation_path_length = G_context.bip32_path_len * sizeof(uint32_t) + 1;
+        if (cdata->size < derivation_path_length) {
+            return io_send_sw(SW_WRONG_DATA_LENGTH);
+        }
     }
+
+    PRINTF("Derivation path length: %d\n", G_context.bip32_path_len);
+
+    //Valid derivation path must be provided
+    if (G_context.bip32_path_len == 0) {
+        return io_send_sw(SW_WRONG_BIP32_PATH_LENGTH);
+    }
+
+    PRINTF("APDU derivation path:\n");
+    for (int j = 0; j < G_context.bip32_path_len; j++) {
+        PRINTF("%u", G_context.bip32_path[j]);
+        PRINTF("/");
+    }
+    PRINTF("\n");
 
     if (G_context.tx_info.raw_tx_len + cdata->size > sizeof(G_context.tx_info.raw_tx)) {
         return io_send_sw(SW_WRONG_TX_LENGTH);
     }
+
     if (!buffer_move(cdata, G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len, cdata->size)) {
         return io_send_sw(SW_TX_PARSING_FAIL);
     }
-    G_context.tx_info.raw_tx_len += cdata->size;
 
+    //Add the length of the incoming transaction body, and if it is the first chunk, exclude the derivation path prefix
+    G_context.tx_info.raw_tx_len += (cdata->size - cdata->offset);
 
     if (more) {
         // more APDUs with transaction part are expected.
-        // Send a SW_OK to signal that we have received the chunk
+        // Send an SW_OK to signal that we have received the chunk
         return io_send_sw(SW_OK);
     }
-    parser_status_e status = deserialize_transaction(cdata);
-    PRINTF("Parsing status: %d.\n", status);
+    const parser_status_e status = deserialize_transaction(cdata);
+
+    kangaroo_twelve(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len, G_context.tx_info.m_hash,
+                    TRANSACTION_DIGEST_LEN);
+
+    PRINTF("Transaction hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
+
     if (status != PARSING_OK) {
         if (N_storage.settings.allow_blind_sign == BlindSignEnabled) {
-            if (k12_hash(G_context.tx_info.raw_tx,
-                         G_context.tx_info.raw_tx_len,
-                         G_context.tx_info.m_hash) != CX_OK) {
-                return io_send_sw(SW_TX_HASH_FAIL);
-            }
             return ui_display_blind_signed_transaction();
         }
         return io_send_sw(SW_TX_PARSING_FAIL);
     }
-
-    //@TODO remove duplicated call to hashing
-    if (k12_hash(G_context.tx_info.raw_tx,
-                 G_context.tx_info.raw_tx_len,
-                 G_context.tx_info.m_hash) != CX_OK) {
-        return io_send_sw(SW_TX_HASH_FAIL);
-    }
-
-    PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
 
     G_context.state = STATE_PARSED;
 

@@ -15,7 +15,8 @@ class TransactionQubic:
 
     ADDRESS_LEN = 32  # Example length for the public keys
 
-    def __init__(self, source_public_key: bytes, destination_public_key: bytes, amount: int, tick: int, input_type: int, input_size: int):
+    def __init__(self, source_public_key: bytes, destination_public_key: bytes,
+                 amount: int, tick: int, input_type: int, input_size: int):
         self.source_public_key = source_public_key
         self.destination_public_key = destination_public_key
         self.amount = amount

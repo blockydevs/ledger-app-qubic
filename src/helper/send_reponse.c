@@ -15,11 +15,10 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memmove
 
-#include "buffer.h"
+#include "io.h"
 
 #include "send_response.h"
 #include "../constants.h"
@@ -37,7 +36,6 @@ int helper_send_response_sig() {
     resp[offset++] = G_context.tx_info.signature_len;
     memmove(resp + offset, G_context.tx_info.signature, G_context.tx_info.signature_len);
     offset += G_context.tx_info.signature_len;
-    resp[offset++] = (uint8_t) G_context.tx_info.v;
 
     return io_send_response_pointer(resp, offset, SW_OK);
 }

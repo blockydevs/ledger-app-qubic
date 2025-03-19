@@ -37,9 +37,12 @@ add_compile_definitions(TEST)
 
 include_directories(../src)
 include_directories($ENV{BOLOS_SDK}/lib_standard_app)
+include_directories(../deps/K12)
+include_directories(../src/ui)
 
-add_executable(test_tx_parser test_tx_parser.c)
 add_executable(test_tx_utils test_tx_utils.c)
+add_executable(test_base26_utils test_base26_utils.c)
+add_executable(test_internal_key_to_seed test_internal_key_to_seed.c)
 
 add_library(base58 SHARED $ENV{BOLOS_SDK}/lib_standard_app/base58.c)
 add_library(bip32 SHARED $ENV{BOLOS_SDK}/lib_standard_app/bip32.c)
@@ -49,25 +52,27 @@ add_library(write SHARED $ENV{BOLOS_SDK}/lib_standard_app/write.c)
 add_library(format SHARED $ENV{BOLOS_SDK}/lib_standard_app/format.c)
 add_library(varint SHARED $ENV{BOLOS_SDK}/lib_standard_app/varint.c)
 add_library(apdu_parser SHARED $ENV{BOLOS_SDK}/lib_standard_app/parser.c)
-add_library(transaction_deserialize ../src/transaction/deserialize.c)
-add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
+add_library(utils ../src/utils.c)
+add_library(address ../src/address.c)
+add_library(kangaroo_twelve ../deps/K12/k12.c)
 
-target_link_libraries(test_tx_parser PUBLIC
-                      transaction_deserialize
-                      transaction_serialize
-                      buffer
-                      bip32
-                      cmocka
-                      gcov
-                      write
-                      read
-                      varint
-                      transaction_utils)
 target_link_libraries(test_tx_utils PUBLIC
                       cmocka
                       gcov
                       transaction_utils)
+target_link_libraries(test_base26_utils PUBLIC
+                      cmocka
+                      gcov
+                      utils)
 
-add_test(test_tx_parser test_tx_parser)
+target_link_libraries(test_internal_key_to_seed PUBLIC
+        cmocka
+        gcov
+        address
+        utils
+        kangaroo_twelve)
+
 add_test(test_tx_utils test_tx_utils)
+add_test(test_base26_utils test_base26_utils)
+add_test(test_internal_key_to_seed test_internal_key_to_seed)

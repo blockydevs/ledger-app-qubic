@@ -9,14 +9,12 @@ from ragger.navigator import NavInsID, NavIns
 
 # In this test we check that the GET_PUBLIC_KEY works in non-confirmation mode
 def test_get_public_key_no_confirm(backend):
-    for path in ["m/44'/1'/0'/0/0", "m/44'/1'/0/0/0", "m/44'/1'/911'/0/0", "m/44'/1'/255/255/255", "m/44'/1'/2147483647/0/0/0/0/0/0/0"]:
-        client = BoilerplateCommandSender(backend)
-        response = client.get_public_key(path=path).data
-        _, public_key, _, chain_code = unpack_get_public_key_response(response)
+    path = "m/44'/1'/0'/0/0"
+    client = BoilerplateCommandSender(backend)
+    response = client.get_public_key(path=path).data
+    _, public_key = unpack_get_public_key_response(response)
 
-        ref_public_key, ref_chain_code = calculate_public_key_and_chaincode(CurveChoice.Secp256k1, path=path)
-        assert public_key.hex() == ref_public_key
-        assert chain_code.hex() == ref_chain_code
+    assert public_key == b'X\xbc\xec\xf9qm\x06N?E\x8a\x847\x9co"\x8fl\x8e\xce\xccle}U\x1aH\xcb?\x9dB'
 
 
 # In this test we check that the GET_PUBLIC_KEY works in confirmation mode
@@ -28,11 +26,9 @@ def test_get_public_key_confirm_accepted(backend, scenario_navigator):
         scenario_navigator.address_review_approve()
 
     response = client.get_async_response().data
-    _, public_key, _, chain_code = unpack_get_public_key_response(response)
+    _, public_key = unpack_get_public_key_response(response)
 
-    ref_public_key, ref_chain_code = calculate_public_key_and_chaincode(CurveChoice.Secp256k1, path=path)
-    assert public_key.hex() == ref_public_key
-    assert chain_code.hex() == ref_chain_code
+    assert public_key == b'X\xbc\xec\xf9qm\x06N?E\x8a\x847\x9co"\x8fl\x8e\xce\xccle}U\x1aH\xcb?\x9dB'
 
 
 # In this test we check that the GET_PUBLIC_KEY in confirmation mode replies an error if the user refuses

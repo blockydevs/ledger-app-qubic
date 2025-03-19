@@ -60,3 +60,7 @@
  * Status word for signature fail.
  */
 #define SW_SIGNATURE_FAIL 0xB008
+/**
+ * Status word for invalid derivation path length
+ */
+#define SW_WRONG_BIP32_PATH_LENGTH 0xC001

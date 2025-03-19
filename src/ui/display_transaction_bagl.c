@@ -36,11 +36,18 @@ static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_address[65];
 static char g_tick[30];
+static char g_public_key[65];
 
+UX_STEP_NOCB(ux_display_public_key_step,
+             bnnn_paging,
+             {
+             .title = "From address",
+             .text = g_public_key,
+             });
 UX_STEP_NOCB(ux_display_address_step,
              bnnn_paging,
              {
-             .title = "Address",
+             .title = "To address",
              .text = g_address,
              });
 UX_STEP_CB(ux_display_approve_step,
@@ -86,6 +93,7 @@ UX_STEP_NOCB(ux_display_tick_step,
 
 UX_FLOW(ux_display_transaction_flow,
         &ux_display_review_step,
+        &ux_display_public_key_step,
         &ux_display_address_step,
         &ux_display_amount_step,
         &ux_display_approve_step,
@@ -93,6 +101,7 @@ UX_FLOW(ux_display_transaction_flow,
 
 UX_FLOW(ux_display_expert_transaction_flow,
         &ux_display_review_step,
+        &ux_display_public_key_step,
         &ux_display_address_step,
         &ux_display_amount_step,
         &ux_display_tick_step,
@@ -110,22 +119,15 @@ static void ui_action_validate_transaction(bool choice) {
 }
 
 int ui_display_transaction() {
-    PRINTF("amount %d\n", G_context.tx_info.transaction_qubic.amount);
-
-    get_identity_from_public_key(G_context.tx_info.transaction_qubic.destinationPublicKey, g_address, false);
-
-    // for (int i = 0; i < 32; i++) {
-    //     SPRINTF(&g_address[i * 2],
-    //             "%02x",
-    //             G_context.tx_info.transaction_qubic.destinationPublicKey[i]);
-    // }
+    get_identity_from_public_key(G_context.tx_info.transaction_qubic.destination_public_key, g_address, false);
 
     g_address[64] = '\0';
+
+    get_identity_from_public_key(G_context.tx_info.transaction_qubic.source_public_key, g_public_key, false);
+    g_public_key[64] = '\0';
+
     print_u64(G_context.tx_info.transaction_qubic.amount, g_amount, sizeof(g_amount));
     print_u64(G_context.tx_info.transaction_qubic.tick, g_tick, sizeof(g_tick));
-    PRINTF("g_amount: %s\n", g_amount);
-    PRINTF("g_address: %s\n", g_address);
-    PRINTF("g_tick: %s\n", g_tick);
 
     g_validate_callback = &ui_action_validate_transaction;
 
