@@ -1,20 +1,3 @@
-/*****************************************************************************
- *   Ledger App Boilerplate.
- *   (c) 2020 Ledger SAS.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *****************************************************************************/
-
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
 #include <string.h>   // memset, explicit_bzero
@@ -26,14 +9,12 @@
 #include "get_public_key.h"
 
 #include "address.h"
-#include "fp_arm.h"
+#include "qubic_keygen.h"
 #include "../globals.h"
 #include "../types.h"
 #include "../ui/ui_api.h"
 #include "../helper/send_response.h"
-#include "key_utils.h"
 #include "sw.h"
-#include "lib_standard_app/crypto_helpers.h"
 
 int handler_get_public_key(buffer_t *cdata, const bool display) {
     explicit_bzero(&G_context, sizeof(G_context));
@@ -53,51 +34,13 @@ int handler_get_public_key(buffer_t *cdata, const bool display) {
     }
 
     PRINTF("Derivation path length: %d\n", G_context.bip32_path_len);
-    PRINTF("APDU derivation path:\n");
-    for (int j = 0; j < G_context.bip32_path_len; j++) {
-        PRINTF("%d", G_context.bip32_path[j]);
-        PRINTF("/");
-    }
-    PRINTF("\n");
 
-    // Allocate 64 bytes to respect Syscall API but only 32 will be used
-    cx_ecfp_256_private_key_t raw_private_key = {0};
-    char seed[SEED_LENGTH] = {0};
+    qubic_keypair_t qubic_keypair = {0};
+    derive_qubic_keypair(&qubic_keypair);
 
-    const cx_err_t cx_err_priv = bip32_derive_with_seed_init_privkey_256(HDW_NORMAL,
-                                                                         CX_CURVE_SECP256K1,
-                                                                         G_context.bip32_path,
-                                                                         G_context.bip32_path_len,
-                                                                         &raw_private_key,
-                                                                         NULL,
-                                                                         NULL,
-                                                                         0);
-
-    if (CX_OK != cx_err_priv) {
-        THROW(cx_err_priv);
-    }
-
-    PRINTF("Generating Qubic seed from derived BIP32 key\n");
-    internal_key_to_seed(raw_private_key.d, sizeof(raw_private_key.d), seed);
-
-    uint8_t subseed[SUBSEED_LENGTH] = {0};
-    get_subseed_from_seed(seed, subseed);
-
-    uint8_t public_key[PUBKEY_LENGTH] = {0};
-    SchnorrQ_KeyGeneration(subseed, public_key);
-
-    PRINTF("Derivation path length: %d\n", G_context.bip32_path_len);
-
-    PRINTF("Public key: ");
-    for (int j = 0; j < PUBKEY_LENGTH; j++) {
-        PRINTF("%02X", public_key[j]);
-    }
-    PRINTF("\n");
-
-    memcpy(G_context.pk_info.raw_public_key, public_key, PUBKEY_LENGTH);
-    explicit_bzero(public_key, PUBKEY_LENGTH);
-    explicit_bzero(seed, SEED_LENGTH);
-    explicit_bzero(subseed, SUBSEED_LENGTH);
+    memcpy(G_context.pk_info.raw_public_key, qubic_keypair.public_key, PUBKEY_LENGTH);
+    explicit_bzero(qubic_keypair.public_key, PUBKEY_LENGTH);
+    explicit_bzero(qubic_keypair.subseed, SUBSEED_LENGTH);
 
     if (display) {
         return ui_display_address();

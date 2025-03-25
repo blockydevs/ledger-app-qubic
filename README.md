@@ -46,7 +46,7 @@ The [ledger-app-dev-tools](https://github.com/LedgerHQ/ledger-app-builder/pkgs/c
 You can download it from the ghcr.io docker repository:
 
 ```shell
-docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:3.55.0
 ```
 
 You can then enter this development environment by executing the following command from the directory of the application `git` repository:
@@ -54,19 +54,19 @@ You can then enter this development environment by executing the following comma
 **Linux (Ubuntu)**
 
 ```shell
-sudo docker run --rm -ti --user "$(id -u):$(id -g)" --net=host --privileged -v "/dev/bus/usb:/dev/bus/usb" -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+sudo docker run --rm -ti --user "$(id -u):$(id -g)" --net=host --privileged -v "/dev/bus/usb:/dev/bus/usb" -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:3.55.0
 ```
 
 **macOS**
 
 ```shell
-sudo docker run  --rm -ti --user "$(id -u):$(id -g)" --net=host --privileged -v "$(pwd -P):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+sudo docker run  --rm -ti --user "$(id -u):$(id -g)" --net=host --privileged -v "$(pwd -P):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:3.55.0
 ```
 
 **Windows (with PowerShell)**
 
 ```shell
-docker run --rm -ti --privileged --net=host -v "$(Get-Location):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+docker run --rm -ti --privileged --net=host -v "$(Get-Location):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:3.55.0
 ```
 
 The application's code will be available from inside the docker container, you can proceed to the following compilation steps to build your app.
@@ -195,17 +195,19 @@ It outputs 3 artifacts:
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation
 
-## Are you developing an application for Ledger devices?
-
-If so, This boilerplate will help you get started.
-
-For a smooth and quick integration:
-
-- See the developers’ documentation on the [Developer Portal](https://developers.ledger.com/), and
-- [Go on Discord](https://developers.ledger.com/discord-pro/) to chat with developer support and the developer community.
 
 ## External dependencies
 
-* @TODO expand
 * Ledger official SDK
-* FourQ sample implementation
+* [FourQ](https://github.com/microsoft/FourQlib) sample implementation
+* Kangaroo Twelve hashing
+
+## Wallet compatibility
+
+This device app is targeting following devices:
+* NanoSP (Firmware version: 1.3.1)
+* NanoX
+* Flex (Firmware version: 1.2.2)
+* Stax 
+
+In case of any problems please make sure that your ledger OS and device app is up to date
