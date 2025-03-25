@@ -4,9 +4,8 @@
 #include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
 
-
-#define SEED_LENGTH 55
-#define SUBSEED_LENGTH 55
+#define SEED_LENGTH            55
+#define SUBSEED_LENGTH         32
 #define PUBLIC_IDENTITY_LENGTH 60
 
 uint8_t internal_key_to_seed(const uint8_t *internal_private_key, size_t input_length, char *out);
