@@ -54,7 +54,6 @@ extern "C" {
     
 #define TARGET_ARM          1
 
-// #define TARGET TARGET_ARM
 #define RADIX           32
     typedef uint32_t        digit_t;      // Unsigned 32-bit digit
     typedef int32_t         sdigit_t;     // Signed 32-bit digit
