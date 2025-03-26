@@ -1,6 +1,7 @@
 /**
-* Code in this file is partially migrated from the Qubic repository (https://github.com/qubic/qubic-cli/blob/main/keyUtils.cpp)
-*/
+ * Code in this file is partially migrated from the Qubic repository
+ * (https://github.com/qubic/qubic-cli/blob/main/keyUtils.cpp)
+ */
 
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
@@ -10,8 +11,9 @@
 
 #include "globals.h"
 #include "k12.h"
-#include "util.h"
 #include "utils.h"
+
+#include <util.h>
 
 /**
  *
@@ -20,7 +22,9 @@
  * @param out Output buffer (always 55 bytes)
  * @return
  */
-uint8_t internal_key_to_seed(const uint8_t *internal_private_key, const size_t input_length, char *out) {
+uint8_t internal_key_to_seed(const uint8_t *internal_private_key,
+                             const size_t input_length,
+                             char *out) {
     BAIL_IF(encode_base26(internal_private_key, input_length, out, SEED_LENGTH));
 
     pad_result_with_z(out, SEED_LENGTH);

@@ -9,4 +9,4 @@ typedef struct {
     uint8_t subseed[SUBSEED_LENGTH];
 } qubic_keypair_t;
 
-uint8_t derive_qubic_keypair(qubic_keypair_t *qubic_keypair);
+uint8_t derive_qubic_keypair(const qubic_keypair_t *qubic_keypair);

@@ -69,6 +69,9 @@ VARIANT_VALUES = BOL
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1
 
+# Override optimization option
+CFLAGS += -O1
+
 ########################################
 #     Application custom permissions   #
 ########################################

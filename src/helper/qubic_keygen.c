@@ -3,7 +3,7 @@
 #include "FourQ_api.h"
 #include "key_utils.h"
 
-uint8_t derive_qubic_keypair(qubic_keypair_t *qubic_keypair) {
+uint8_t derive_qubic_keypair(const qubic_keypair_t *qubic_keypair) {
     if (qubic_keypair == NULL) {
         return 1;
     }
@@ -25,13 +25,12 @@ uint8_t derive_qubic_keypair(qubic_keypair_t *qubic_keypair) {
         THROW(cx_err_priv);
     }
 
-    PRINTF("Generating Qubic seed from derived BIP32 key\n");
     internal_key_to_seed(raw_private_key.d, sizeof(raw_private_key.d), seed);
 
-    get_subseed_from_seed(seed, qubic_keypair->subseed);
+    get_subseed_from_seed((uint8_t *) seed, (uint8_t *) qubic_keypair->subseed);
     explicit_bzero(seed, SEED_LENGTH);
 
-    SchnorrQ_KeyGeneration(qubic_keypair->subseed, qubic_keypair->public_key);
+    SchnorrQ_KeyGeneration(qubic_keypair->subseed, (uint8_t *) qubic_keypair->public_key);
 
     return 0;
 }
