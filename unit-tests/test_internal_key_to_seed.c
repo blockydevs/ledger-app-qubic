@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>   // uint*_t
 
 #include <cmocka.h>
 
@@ -23,10 +24,10 @@ static void test_internal_key_to_seed(void **state) {
     char seed[55] = {0};
 
     // when
-    bool result = internal_key_to_seed(internal_private_key, sizeof(internal_private_key), seed);
+    uint8_t result = internal_key_to_seed(internal_private_key, sizeof(internal_private_key), seed);
 
     // then
-    assert_true(result);
+    assert_int_equal(result, 0);
     assert_string_equal(seed, "bkqvfpdxraasqnmqfqjpesghfszenwzgifkvzalsdxqpfebpewiqxtq");
 }
 
