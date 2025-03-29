@@ -100,13 +100,8 @@ class BoilerplateCommandSender:
 
     @contextmanager
     def sign_tx(self, path: str, transaction: bytes) -> Generator[None, None, None]:
-        self.backend.exchange(cla=CLA,
-                              ins=InsType.SIGN_TX,
-                              p1=P1.P1_START,
-                              p2=P2.P2_MORE,
-                              data=pack_derivation_path(path))
-        messages = split_message(transaction, MAX_APDU_LEN)
-        idx: int = P1.P1_START + 1
+        messages = split_message(pack_derivation_path(path) + transaction, MAX_APDU_LEN)
+        idx: int = P1.P1_START
 
         for msg in messages[:-1]:
             self.backend.exchange(cla=CLA,

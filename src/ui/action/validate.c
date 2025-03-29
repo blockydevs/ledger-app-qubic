@@ -28,7 +28,7 @@
 #include "../../globals.h"
 #include "../../helper/send_response.h"
 
-void validate_pubkey(bool choice) {
+void validate_pubkey(const bool choice) {
     if (choice) {
         helper_send_response_pubkey();
     } else {
@@ -37,7 +37,7 @@ void validate_pubkey(bool choice) {
 }
 
 static int crypto_sign_message(void) {
-    size_t sig_len = sizeof(G_context.tx_info.signature);
+    const size_t sig_len = sizeof(G_context.tx_info.signature);
 
     qubic_keypair_t qubic_keypair = {0};
     derive_qubic_keypair(&qubic_keypair);
@@ -68,7 +68,7 @@ static int crypto_sign_message(void) {
     return 0;
 }
 
-void validate_transaction(bool choice) {
+void validate_transaction(const bool choice) {
     if (choice) {
         G_context.state = STATE_APPROVED;
 

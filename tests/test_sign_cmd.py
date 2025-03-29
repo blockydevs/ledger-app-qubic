@@ -40,20 +40,18 @@ def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
                        screen_change_before_first_instruction=False)
 
     client = BoilerplateCommandSender(backend)
-    path: str = "m/44'/1'/0'/0/0"
+    path: str = "m/44'/83293'/0'/0/0"
 
     rapdu = client.get_public_key(path=path)
     _, public_key = unpack_get_public_key_response(rapdu.data)
 
-    string_private_key = (b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
-                          b'\xd9\x03a\x02\x97o\x8f\xbf\xcfT\x9c?0\x03\nk\xa3:\xbd\x1b6\
-                          xeeC:Bg\xf7B\x14\xf9\x84m\xa6A\xf8\x03g\xba')
+    destination_address = b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
 
-    source_public_key = bytes.fromhex("D158BCECF9716D064E3F458A84379C6F228F6C8ECECC6C657D551A48CB3F9D42")
+    source_public_key =bytes.fromhex("9F8C8F910AA2BB32AFFC3E6F0778490CD3722F5D90995990915790C71993852C")
 
     example_transaction = TransactionQubic(
         source_public_key=source_public_key,
-        destination_public_key=string_private_key,
+        destination_public_key=destination_address,
         amount=123,
         tick=12345,
         input_type=1,
@@ -70,27 +68,26 @@ def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
 
     response = client.get_async_response().data
     _, der_sig, _ = unpack_sign_tx_response(response)
-    assert public_key == b'X\xbc\xec\xf9qm\x06N?E\x8a\x847\x9co"\x8fl\x8e\xce\xccle}U\x1aH\xcb?\x9dB'
+    assert public_key == b'\x8c\x8f\x91\n\xa2\xbb2\xaf\xfc>o\x07xI\x0c\xd3r/]\x90\x99Y\x90\x91W\x90\xc7\x19\x93\x85,'
+
 
 def test_sign_tx_short_tx(backend, scenario_navigator):
 
     # given
 
     client = BoilerplateCommandSender(backend)
-    path: str = "m/44'/1'/0'/0/0"
+    path: str = "m/44'/83293'/0'/0/0"
 
     rapdu = client.get_public_key(path=path)
     _, public_key = unpack_get_public_key_response(rapdu.data)
 
-    string_private_key = (b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
-                          b'\xd9\x03a\x02\x97o\x8f\xbf\xcfT\x9c?0\x03\nk\xa3:\xbd\x1b6\
-                          xeeC:Bg\xf7B\x14\xf9\x84m\xa6A\xf8\x03g\xba')
+    destination_address = b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
 
-    source_public_key = bytes.fromhex("D158BCECF9716D064E3F458A84379C6F228F6C8ECECC6C657D551A48CB3F9D42")
+    source_public_key =bytes.fromhex("9F8C8F910AA2BB32AFFC3E6F0778490CD3722F5D90995990915790C71993852C")
 
     example_transaction = TransactionQubic(
         source_public_key=source_public_key,
-        destination_public_key=string_private_key,
+        destination_public_key=destination_address,
         amount=123,
         tick=12345,
         input_type=1,
@@ -107,7 +104,7 @@ def test_sign_tx_short_tx(backend, scenario_navigator):
 
     response = client.get_async_response().data
     _, der_sig, _ = unpack_sign_tx_response(response)
-    assert public_key == b'X\xbc\xec\xf9qm\x06N?E\x8a\x847\x9co"\x8fl\x8e\xce\xccle}U\x1aH\xcb?\x9dB'
+    assert public_key == b'\x8c\x8f\x91\n\xa2\xbb2\xaf\xfc>o\x07xI\x0c\xd3r/]\x90\x99Y\x90\x91W\x90\xc7\x19\x93\x85,'
 
 def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navigator, test_name, default_screenshot_path):
 
@@ -140,7 +137,7 @@ def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navi
                        screen_change_before_first_instruction=False)
 
     client = BoilerplateCommandSender(backend)
-    path: str = "m/44'/1'/0'/0/0"
+    path: str = "m/44'/83293'/0'/0/0"
 
     rapdu = client.get_public_key(path=path)
     _, public_key = unpack_get_public_key_response(rapdu.data)
@@ -169,14 +166,14 @@ def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navi
 
     response = client.get_async_response().data
     _, der_sig, _ = unpack_sign_tx_response(response)
-    assert public_key == b'X\xbc\xec\xf9qm\x06N?E\x8a\x847\x9co"\x8fl\x8e\xce\xccle}U\x1aH\xcb?\x9dB'
+    assert public_key == b'\x8c\x8f\x91\n\xa2\xbb2\xaf\xfc>o\x07xI\x0c\xd3r/]\x90\x99Y\x90\x91W\x90\xc7\x19\x93\x85,'
 
 def test_sign_tx_long_tx(backend, scenario_navigator):
 
     # given
 
     client = BoilerplateCommandSender(backend)
-    path: str = "m/44'/1'/0'/0/0"
+    path: str = "m/44'/83293'/0'/0/0"
 
     rapdu = client.get_public_key(path=path)
     print("rapdu: ")
@@ -185,15 +182,13 @@ def test_sign_tx_long_tx(backend, scenario_navigator):
     print(rapdu.data)
     _, public_key = unpack_get_public_key_response(rapdu.data)
 
-    string_private_key = (b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
-                          b'\xd9\x03a\x02\x97o\x8f\xbf\xcfT\x9c?0\x03\nk\xa3:\xbd\x1b6\
-                          xeeC:Bg\xf7B\x14\xf9\x84m\xa6A\xf8\x03g\xba')
+    destination_address = b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
 
-    source_public_key = bytes.fromhex("D158BCECF9716D064E3F458A84379C6F228F6C8ECECC6C657D551A48CB3F9D42")
+    source_public_key =bytes.fromhex("9F8C8F910AA2BB32AFFC3E6F0778490CD3722F5D90995990915790C71993852C")
 
     example_transaction = TransactionQubic(
         source_public_key=source_public_key,
-        destination_public_key=string_private_key,
+        destination_public_key=destination_address,
         amount=123,
         tick=12345,
         input_type=1,
@@ -210,27 +205,25 @@ def test_sign_tx_long_tx(backend, scenario_navigator):
 
     response = client.get_async_response().data
     _, der_sig, _ = unpack_sign_tx_response(response)
-    assert public_key == b'X\xbc\xec\xf9qm\x06N?E\x8a\x847\x9co"\x8fl\x8e\xce\xccle}U\x1aH\xcb?\x9dB'
+    assert public_key == b'\x8c\x8f\x91\n\xa2\xbb2\xaf\xfc>o\x07xI\x0c\xd3r/]\x90\x99Y\x90\x91W\x90\xc7\x19\x93\x85,'
 
 def test_sign_tx_refused(backend, scenario_navigator):
 
     # given
 
     client = BoilerplateCommandSender(backend)
-    path: str = "m/44'/1'/0'/0/0"
+    path: str = "m/44'/83293'/0'/0/0"
 
     rapdu = client.get_public_key(path=path)
     _, pub_key = unpack_get_public_key_response(rapdu.data)
 
-    string_private_key = (b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
-                          b'\xd9\x03a\x02\x97o\x8f\xbf\xcfT\x9c?0\x03\nk\xa3:\xbd\x1b6\
-                          xeeC:Bg\xf7B\x14\xf9\x84m\xa6A\xf8\x03g\xba')
+    destination_address = b'\x04K\xfe\xc5||\xfbQR\xd6HD\x9e\x90\xf0\xfco\x8b;\xcf\x9bu\xc6\xef\xb1\xea\x81'
 
-    source_public_key = bytes.fromhex("D158BCECF9716D064E3F458A84379C6F228F6C8ECECC6C657D551A48CB3F9D42")
+    source_public_key =bytes.fromhex("9F8C8F910AA2BB32AFFC3E6F0778490CD3722F5D90995990915790C71993852C")
 
     example_transaction = TransactionQubic(
         source_public_key=source_public_key,
-        destination_public_key=string_private_key,
+        destination_public_key=destination_address,
         amount=123,
         tick=12345,
         input_type=1,
@@ -280,7 +273,7 @@ def test_sign_tx_short_tx_blind_sign_refused(firmware, navigator, backend, scena
                        screen_change_before_first_instruction=False)
 
     client = BoilerplateCommandSender(backend)
-    path: str = "m/44'/1'/0'/0/0"
+    path: str = "m/44'/83293'/0'/0/0"
 
     rapdu = client.get_public_key(path=path)
     _, public_key = unpack_get_public_key_response(rapdu.data)
