@@ -30,7 +30,7 @@ APPNAME = "Qubic"
 # Application version
 APPVERSION_M = 0
 APPVERSION_N = 1
-APPVERSION_P = 2
+APPVERSION_P = 4
 APPVERSION = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 # Application source files
@@ -68,6 +68,9 @@ VARIANT_VALUES = BOL
 
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1
+
+# Override optimization option
+CFLAGS += -O1
 
 ########################################
 #     Application custom permissions   #

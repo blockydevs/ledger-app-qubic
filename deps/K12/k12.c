@@ -142,12 +142,12 @@ void kangaroo_twelve(const uint8_t *input, unsigned int inputByteLen, uint8_t *o
         }
 
         while (inputByteLen > 0) {
-            const unsigned int len = K12_chunkSize ^ ((inputByteLen ^ K12_chunkSize) & -(inputByteLen < K12_chunkSize));
+            const unsigned int chunk_len = K12_chunkSize ^ ((inputByteLen ^ K12_chunkSize) & -(inputByteLen < K12_chunkSize));
             memset(&queueNode, 0, sizeof(KangarooTwelve_F));
-            kangaroo_twelve_f_absorb(&queueNode, input, len);
-            input += len;
-            inputByteLen -= len;
-            if (len == K12_chunkSize) {
+            kangaroo_twelve_f_absorb(&queueNode, input, chunk_len);
+            input += chunk_len;
+            inputByteLen -= chunk_len;
+            if (chunk_len == K12_chunkSize) {
                 ++blockNumber;
                 queueNode.state[queueNode.byteIOIndex] ^= K12_suffixLeaf;
                 queueNode.state[K12_rateInBytes - 1] ^= 0x80;
@@ -155,7 +155,7 @@ void kangaroo_twelve(const uint8_t *input, unsigned int inputByteLen, uint8_t *o
                 queueNode.byteIOIndex = K12_capacityInBytes;
                 kangaroo_twelve_f_absorb(&finalNode, queueNode.state, K12_capacityInBytes);
             } else {
-                queueAbsorbedLen = len;
+                queueAbsorbedLen = chunk_len;
             }
         }
 

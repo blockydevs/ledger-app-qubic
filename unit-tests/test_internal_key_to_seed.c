@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>   // uint*_t
 
 #include <cmocka.h>
 
@@ -14,7 +15,6 @@ static void test_internal_key_to_seed(void **state) {
     (void)state;
 
     // default speculous seed
-
     const uint8_t internal_private_key[32] = {
         0x4F, 0xD5, 0x54, 0x70, 0x26, 0xD2, 0x4A, 0x12,
         0x0A, 0x26, 0x8D, 0x24, 0x6E, 0x90, 0xDD, 0x23,
@@ -24,10 +24,10 @@ static void test_internal_key_to_seed(void **state) {
     char seed[55] = {0};
 
     // when
-    bool result = internal_key_to_seed(internal_private_key, sizeof(internal_private_key), seed);
+    uint8_t result = internal_key_to_seed(internal_private_key, sizeof(internal_private_key), seed);
 
     // then
-    assert_true(result);
+    assert_int_equal(result, 0);
     assert_string_equal(seed, "bkqvfpdxraasqnmqfqjpesghfszenwzgifkvzalsdxqpfebpewiqxtq");
 }
 

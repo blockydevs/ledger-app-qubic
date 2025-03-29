@@ -75,7 +75,7 @@ ECCRYPTO_STATUS SchnorrQ_Sign(const unsigned char *SecretKey, const unsigned cha
     unsigned char k[64] = {0};
     unsigned char r[64] = {0};
     unsigned char h[64] = {0};
-    digit_t *H = h;
+    digit_t *H = (digit_t*) h;
     digit_t *S = (digit_t *) (Signature + 32);
     unsigned char temp[32 + 64] = {0};
 

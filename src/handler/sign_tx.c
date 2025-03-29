@@ -34,7 +34,6 @@
 
 #include "k12.h"
 
-
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     PRINTF("Expert mode: %d.\n", N_storage.settings.display_mode);
     PRINTF("Chunk: %d\n", chunk);
@@ -63,7 +62,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
     PRINTF("Derivation path length: %d\n", G_context.bip32_path_len);
 
-    //Valid derivation path must be provided
+    // Valid derivation path must be provided
     if (G_context.bip32_path_len == 0) {
         return io_send_sw(SW_WRONG_BIP32_PATH_LENGTH);
     }
@@ -83,7 +82,8 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         return io_send_sw(SW_TX_PARSING_FAIL);
     }
 
-    //Add the length of the incoming transaction body, and if it is the first chunk, exclude the derivation path prefix
+    // Add the length of the incoming transaction body, and if it is the first chunk, exclude the
+    // derivation path prefix
     G_context.tx_info.raw_tx_len += (cdata->size - cdata->offset);
 
     if (more) {
@@ -93,7 +93,9 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     }
     const parser_status_e status = deserialize_transaction(cdata);
 
-    kangaroo_twelve(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len, G_context.tx_info.m_hash,
+    kangaroo_twelve(G_context.tx_info.raw_tx,
+                    G_context.tx_info.raw_tx_len,
+                    G_context.tx_info.m_hash,
                     TRANSACTION_DIGEST_LEN);
 
     PRINTF("Transaction hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);

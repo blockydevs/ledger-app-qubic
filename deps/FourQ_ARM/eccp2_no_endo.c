@@ -13,6 +13,9 @@
 
 #include "FourQ_internal.h"
 
+#ifndef USE_ENDO
+#define USE_ENDO false
+#endif
 
 #if (USE_ENDO == false)
 

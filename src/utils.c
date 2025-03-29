@@ -2,20 +2,17 @@
 #include "utils.h"
 #include <stdbool.h>
 
+static const char BASE26_ALPHABET[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+                                       'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+                                       's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
-static const char BASE26_ALPHABET[] = {
-    'a', 'b', 'c',
-    'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-};
-
-#define ALPHABET_LENGTH 26
-#define PADDING_CHAR 'z'
+#define ALPHABET_LENGTH     26
+#define PADDING_CHAR        'z'
 #define WORKING_BUFFER_SIZE 32
-#define MAX_RESULT_LENGTH 55
+#define MAX_RESULT_LENGTH   55
 
 int pad_result_with_z(char *target_string, const size_t target_length) {
-    const size_t current_length = strlen(target_string);
+    const size_t current_length = strnlen(target_string, MAX_RESULT_LENGTH);
 
     // If the current length is less than the target, pad with 'z' at the beginning
     if (current_length < target_length) {
@@ -30,9 +27,12 @@ int pad_result_with_z(char *target_string, const size_t target_length) {
  * Encodes input hex string into base26 string representation
  * Output buffer does not contain null terminator
  */
-int encode_base26(const uint8_t *hex_input, const size_t input_length, char *output, const size_t output_size) {
+int encode_base26(const uint8_t *hex_input,
+                  const size_t input_length,
+                  char *output,
+                  const size_t output_size) {
     if (output_size > MAX_RESULT_LENGTH) {
-        //Exceeded max output length
+        // Exceeded max output length
         return 1;
     }
 
@@ -65,7 +65,7 @@ int encode_base26(const uint8_t *hex_input, const size_t input_length, char *out
 
         result[result_index--] = BASE26_ALPHABET[remainder];
 
-        if(start_index == MAX_RESULT_LENGTH) {
+        if (start_index == MAX_RESULT_LENGTH) {
             start_index = result_index + 1;
         }
 
@@ -78,9 +78,9 @@ int encode_base26(const uint8_t *hex_input, const size_t input_length, char *out
         }
     } while (!is_zero);
 
-    size_t converted_length = MAX_RESULT_LENGTH - (result_index + 1);
+    const size_t converted_length = MAX_RESULT_LENGTH - (result_index + 1);
 
-    if(converted_length > output_size) {
+    if (converted_length > output_size) {
         return 0x7;
     }
 
