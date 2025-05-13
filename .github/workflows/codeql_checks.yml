@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - '.github/workflows/*.yml'
       - 'tests/*'
+      - 'deps/**'
 
 jobs:
   analyse:
