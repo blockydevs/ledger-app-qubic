@@ -41,7 +41,7 @@ enum SettingsMenuOption {
 UX_STEP_NOCB(ux_idle_flow_1_step,
              pnn,
              {
-                 &C_app_boilerplate_16px,
+                 &C_app_qubic_16px,
                  "Application",
                  "is ready",
              });

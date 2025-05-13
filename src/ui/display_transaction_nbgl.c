@@ -101,7 +101,7 @@ int ui_display_transaction_bs_choice(bool is_blind_signed) {
     if (is_blind_signed) {
         nbgl_useCaseReviewBlindSigning(TYPE_TRANSACTION,
                                        &pairList,
-                                       &C_app_boilerplate_64px,
+                                       &C_app_qubic_64px,
                                        "Review transaction\nto send QUBIC",
                                        NULL,
                                        "Sign transaction\nto send QUBIC",
@@ -110,7 +110,7 @@ int ui_display_transaction_bs_choice(bool is_blind_signed) {
     } else {
         nbgl_useCaseReview(TYPE_TRANSACTION,
                            &pairList,
-                           &C_app_boilerplate_64px,
+                           &C_app_qubic_64px,
                            "Review transaction\nto send QUBIC",
                            NULL,
                            "Sign transaction\nto send QUBIC",
