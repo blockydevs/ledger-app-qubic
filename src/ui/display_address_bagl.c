@@ -39,22 +39,22 @@ UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"})
 UX_STEP_NOCB(ux_display_address,
              bnnn_paging,
              {
-             .title = "Address",
-             .text = g_address,
+                 .title = "Address",
+                 .text = g_address,
              });
 UX_STEP_CB(ux_display_approve,
            pb,
            (*g_validate_callback)(true),
            {
-           &C_icon_validate_14,
-           "Approve",
+               &C_icon_validate_14,
+               "Approve",
            });
 UX_STEP_CB(ux_display_reject,
            pb,
            (*g_validate_callback)(false),
            {
-           &C_icon_crossmark,
-           "Reject",
+               &C_icon_crossmark,
+               "Reject",
            });
 UX_FLOW(ux_display_pubkey_flow,
         &ux_display_confirm_addr_step,
@@ -74,7 +74,7 @@ int ui_display_address() {
     }
     memset(g_address, 0, sizeof(g_address));
 
-    //Produce Qubic public ID
+    // Produce Qubic public ID
     get_identity_from_public_key(G_context.pk_info.raw_public_key, g_address, false);
 
     g_validate_callback = &ui_action_validate_pubkey;

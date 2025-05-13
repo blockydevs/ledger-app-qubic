@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>   // uint*_t
+#include <stdint.h>  // uint*_t
 #include "../globals.h"
 #include "../address.h"
 

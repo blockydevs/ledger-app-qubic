@@ -53,7 +53,7 @@ int ui_display_address() {
     }
 
     memset(g_address, 0, sizeof(g_address));
-    //Produce Qubic public ID
+    // Produce Qubic public ID
     get_identity_from_public_key(G_context.pk_info.raw_public_key, g_address, false);
 
     nbgl_useCaseAddressReview(g_address,
