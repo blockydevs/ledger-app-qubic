@@ -4,7 +4,7 @@ from application_client.boilerplate_response_unpacker import unpack_get_version_
 # Taken from the Makefile, to update every time the Makefile version is bumped
 MAJOR = 0
 MINOR = 1
-PATCH = 4
+PATCH = 5
 
 # In this test we check the behavior of the device when asked to provide the app version
 def test_version(backend):
