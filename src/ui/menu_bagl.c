@@ -41,29 +41,29 @@ enum SettingsMenuOption {
 UX_STEP_NOCB(ux_idle_flow_1_step,
              pnn,
              {
-             &C_app_boilerplate_16px,
-             "Application",
-             "is ready",
+                 &C_app_qubic_16px,
+                 "Application",
+                 "is ready",
              });
 UX_STEP_CB(ux_idle_flow_2_step,
            pb,
            ux_menulist_init(0, settings_submenu_getter, settings_submenu_selector),
            {
-           &C_icon_coggle,
-           "Settings",
+               &C_icon_coggle,
+               "Settings",
            });
 UX_STEP_NOCB(ux_idle_flow_3_step,
              bn,
              {
-             "Version",
-             APPVERSION,
+                 "Version",
+                 APPVERSION,
              });
 UX_STEP_CB(ux_idle_flow_4_step,
            pb,
            os_sched_exit(-1),
            {
-           &C_icon_dashboard_x,
-           "Quit",
+               &C_icon_dashboard_x,
+               "Quit",
            });
 UX_FLOW(ux_idle_flow,
         &ux_idle_flow_1_step,
@@ -86,7 +86,9 @@ static unsigned int settings_submenu_option_index(enum SettingsMenuOption settin
     switch (settings_menu_option) {
         case SettingsMenuOptionAllowBlindSign:
         case SettingsMenuOptionDisplayMode:
-        default: return settings_menu_option;;
+        default:
+            return settings_menu_option;
+            ;
     }
 }
 
@@ -159,7 +161,6 @@ static void allow_blind_sign_data_selector(unsigned int idx) {
     unsigned int select_item = settings_submenu_option_index(SettingsMenuOptionAllowBlindSign);
     ux_menulist_init_select(0, settings_submenu_getter, settings_submenu_selector, select_item);
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Display mode submenu

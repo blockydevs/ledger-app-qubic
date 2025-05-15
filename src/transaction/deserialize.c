@@ -23,20 +23,25 @@
 #include <globals.h>
 
 parser_status_e deserialize_transaction(const buffer_t *buf) {
-    if (buf == NULL || buf->size > MAX_TX_LEN || (buf->size - buf->offset) != sizeof(transaction_qubic_t)) {
+    if (buf == NULL || buf->size > MAX_TX_LEN ||
+        (buf->size - buf->offset) != sizeof(transaction_qubic_t)) {
         return WRONG_LENGTH_ERROR;
     }
 
-    memcpy(&G_context.tx_info.transaction_qubic, buf->ptr + buf->offset, sizeof(transaction_qubic_t));
+    memcpy(&G_context.tx_info.transaction_qubic,
+           buf->ptr + buf->offset,
+           sizeof(transaction_qubic_t));
 
     // Cap the size to ADDRESS_LEN to avoid any risk of overflowing buffers during operations
     if (memcmp(G_context.tx_info.transaction_qubic.destination_public_key,
-               (uint8_t[ADDRESS_LEN]){0}, ADDRESS_LEN) == 0) {
+               (uint8_t[ADDRESS_LEN]){0},
+               ADDRESS_LEN) == 0) {
         return WRONG_DESTINATION_ADDRESS_ERROR;
     }
 
     if (memcmp(G_context.tx_info.transaction_qubic.source_public_key,
-               (uint8_t[ADDRESS_LEN]){0}, ADDRESS_LEN) == 0) {
+               (uint8_t[ADDRESS_LEN]){0},
+               ADDRESS_LEN) == 0) {
         return WRONG_SOURCE_ADDRESS_ERROR;
     }
 

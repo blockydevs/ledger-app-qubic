@@ -126,7 +126,7 @@ void ui_menu_main(void) {
     }
 
     nbgl_useCaseHomeAndSettings(APPNAME,
-                                &C_app_boilerplate_64px,
+                                &C_app_qubic_64px,
                                 NULL,
                                 INIT_HOME_PAGE,
                                 &settingContents,

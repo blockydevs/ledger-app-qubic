@@ -1,5 +1,5 @@
 # ****************************************************************************
-#    Ledger App Boilerplate
+#    Ledger App qubic
 #    (c) 2023 Ledger SAS.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,10 +38,10 @@ APP_SOURCE_PATH += src
 
 # Application icons following guidelines:
 # https://developers.ledger.com/docs/embedded-app/design-requirements/#device-icon
-ICON_NANOX = icons/app_boilerplate_14px.gif
-ICON_NANOSP = icons/app_boilerplate_14px.gif
-ICON_STAX = icons/app_boilerplate_32px.gif
-ICON_FLEX = icons/app_boilerplate_40px.gif
+ICON_NANOX = icons/app_qubic_14px.gif
+ICON_NANOSP = icons/app_qubic_14px.gif
+ICON_STAX = icons/app_qubic_32px.gif
+ICON_FLEX = icons/app_qubic_40px.gif
 
 # Application allowed derivation curves.
 # Possibles curves are: secp256k1, secp256r1, ed25519 and bls12381g1
@@ -64,7 +64,7 @@ PATH_APP_LOAD_PARAMS = "44'/83293'"   # purpose=coin(44) / coin_type=Testnet(1)
 #   * It must at least contains one value.
 #   * Values can be the app ticker or anything else but should be unique.
 VARIANT_PARAM = COIN
-VARIANT_VALUES = BOL
+VARIANT_VALUES = QUBIC
 
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1

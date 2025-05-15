@@ -15,7 +15,6 @@
  *  limitations under the License.
  *****************************************************************************/
 
-
 #ifdef HAVE_NBGL
 
 #include <stdbool.h>
@@ -66,10 +65,14 @@ int ui_display_transaction_bs_choice(bool is_blind_signed) {
     }
     memset(g_address, 0, sizeof(g_address));
 
-    get_identity_from_public_key(G_context.tx_info.transaction_qubic.destination_public_key, g_address, false);
+    get_identity_from_public_key(G_context.tx_info.transaction_qubic.destination_public_key,
+                                 g_address,
+                                 false);
     g_address[64] = '\0';
 
-    get_identity_from_public_key(G_context.tx_info.transaction_qubic.source_public_key, g_public_key, false);
+    get_identity_from_public_key(G_context.tx_info.transaction_qubic.source_public_key,
+                                 g_public_key,
+                                 false);
     g_public_key[64] = '\0';
 
     print_u64(G_context.tx_info.transaction_qubic.amount, g_amount, sizeof(g_amount));
@@ -98,7 +101,7 @@ int ui_display_transaction_bs_choice(bool is_blind_signed) {
     if (is_blind_signed) {
         nbgl_useCaseReviewBlindSigning(TYPE_TRANSACTION,
                                        &pairList,
-                                       &C_app_boilerplate_64px,
+                                       &C_app_qubic_64px,
                                        "Review transaction\nto send QUBIC",
                                        NULL,
                                        "Sign transaction\nto send QUBIC",
@@ -107,7 +110,7 @@ int ui_display_transaction_bs_choice(bool is_blind_signed) {
     } else {
         nbgl_useCaseReview(TYPE_TRANSACTION,
                            &pairList,
-                           &C_app_boilerplate_64px,
+                           &C_app_qubic_64px,
                            "Review transaction\nto send QUBIC",
                            NULL,
                            "Sign transaction\nto send QUBIC",
