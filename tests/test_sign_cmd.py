@@ -6,7 +6,7 @@ from application_client.boilerplate_response_unpacker import unpack_get_public_k
 from ragger.error import ExceptionRAPDU
 from ragger.navigator import NavInsID, NavIns
 
-def enable_exper_mode(firmware, navigator):
+def enable_expert_mode(firmware, navigator):
     if firmware.name == 'flex':
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
@@ -26,7 +26,6 @@ def enable_exper_mode(firmware, navigator):
         instructions = [
             NavInsID.RIGHT_CLICK,
             NavInsID.BOTH_CLICK,
-            NavInsID.RIGHT_CLICK,
             NavInsID.BOTH_CLICK,
             NavInsID.RIGHT_CLICK,
             NavInsID.BOTH_CLICK
@@ -39,7 +38,7 @@ def enable_exper_mode(firmware, navigator):
 def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
 
     # given
-    enable_exper_mode(firmware, navigator)
+    enable_expert_mode(firmware, navigator)
 
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/83293'/0'/0/0"
@@ -111,7 +110,7 @@ def test_sign_tx_short_tx(backend, scenario_navigator):
 def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navigator, test_name, default_screenshot_path):
 
     # given
-    enable_exper_mode(firmware, navigator)
+    enable_expert_mode(firmware, navigator)
 
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/83293'/0'/0/0"
@@ -222,7 +221,7 @@ def test_sign_tx_refused(backend, scenario_navigator):
 def test_sign_tx_short_tx_blind_sign_refused(firmware, navigator, backend, scenario_navigator,
                                              test_name, default_screenshot_path):
     # given
-    enable_exper_mode(firmware, navigator)
+    enable_expert_mode(firmware, navigator)
 
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/83293'/0'/0/0"
