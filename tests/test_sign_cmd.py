@@ -6,18 +6,14 @@ from application_client.boilerplate_response_unpacker import unpack_get_public_k
 from ragger.error import ExceptionRAPDU
 from ragger.navigator import NavInsID, NavIns
 
-from utils import check_signature_validity
-
-def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
-
-    # given
-
+def enable_exper_mode(firmware, navigator):
     if firmware.name == 'flex':
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavIns(NavInsID.TOUCH, (200, 113)),
             NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400))
+            NavInsID.USE_CASE_SETTINGS_NEXT,
+            NavIns(NavInsID.TOUCH, (200, 113))
         ]
     elif firmware.name == 'stax':
         instructions = [
@@ -38,6 +34,12 @@ def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
 
     navigator.navigate(instructions,
                        screen_change_before_first_instruction=False)
+
+
+def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
+
+    # given
+    enable_exper_mode(firmware, navigator)
 
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/83293'/0'/0/0"
@@ -109,32 +111,7 @@ def test_sign_tx_short_tx(backend, scenario_navigator):
 def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navigator, test_name, default_screenshot_path):
 
     # given
-
-    if firmware.name == 'flex':
-        instructions = [
-            NavInsID.USE_CASE_HOME_SETTINGS,
-            NavIns(NavInsID.TOUCH, (200, 113)),
-            NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400))
-        ]
-    elif firmware.name == 'stax':
-        instructions = [
-            NavInsID.USE_CASE_HOME_SETTINGS,
-            NavIns(NavInsID.TOUCH, (200, 113)),
-            NavIns(NavInsID.TOUCH, (200, 261)),
-            NavIns(NavInsID.TOUCH, (200, 400))
-        ]
-    else:
-        instructions = [
-            NavInsID.RIGHT_CLICK,
-            NavInsID.BOTH_CLICK,
-            NavInsID.BOTH_CLICK,
-            NavInsID.RIGHT_CLICK,
-            NavInsID.BOTH_CLICK
-        ]
-
-    navigator.navigate(instructions,
-                       screen_change_before_first_instruction=False)
+    enable_exper_mode(firmware, navigator)
 
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/83293'/0'/0/0"
@@ -245,32 +222,7 @@ def test_sign_tx_refused(backend, scenario_navigator):
 def test_sign_tx_short_tx_blind_sign_refused(firmware, navigator, backend, scenario_navigator,
                                              test_name, default_screenshot_path):
     # given
-
-    if firmware.name == 'flex':
-        instructions = [
-            NavInsID.USE_CASE_HOME_SETTINGS,
-            NavIns(NavInsID.TOUCH, (200, 113)),
-            NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400))
-        ]
-    elif firmware.name == 'stax':
-        instructions = [
-            NavInsID.USE_CASE_HOME_SETTINGS,
-            NavIns(NavInsID.TOUCH, (200, 113)),
-            NavIns(NavInsID.TOUCH, (200, 261)),
-            NavIns(NavInsID.TOUCH, (200, 400))
-        ]
-    else:
-        instructions = [
-            NavInsID.RIGHT_CLICK,
-            NavInsID.BOTH_CLICK,
-            NavInsID.BOTH_CLICK,
-            NavInsID.RIGHT_CLICK,
-            NavInsID.BOTH_CLICK
-        ]
-
-    navigator.navigate(instructions,
-                       screen_change_before_first_instruction=False)
+    enable_exper_mode(firmware, navigator)
 
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/83293'/0'/0/0"

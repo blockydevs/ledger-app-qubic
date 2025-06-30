@@ -26,9 +26,8 @@ def test_app_mainmenu(firmware, navigator, test_name, default_screenshot_path):
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavIns(NavInsID.TOUCH, (200, 113)),
             NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400)),
-            NavInsID.USE_CASE_CHOICE_CONFIRM,
-            NavIns(NavInsID.TOUCH, (200, 300)),
+            NavInsID.USE_CASE_SETTINGS_NEXT,
+            NavIns(NavInsID.TOUCH, (200, 113)),
             NavInsID.USE_CASE_SETTINGS_NEXT,
             NavInsID.USE_CASE_SETTINGS_MULTI_PAGE_EXIT
         ]
