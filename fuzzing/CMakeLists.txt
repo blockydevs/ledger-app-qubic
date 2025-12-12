@@ -30,7 +30,7 @@ endif()
 
 # compatible with ClusterFuzzLite
 if (NOT DEFINED ENV{LIB_FUZZING_ENGINE})
-	set(COMPILATION_FLAGS_ "-g -Wall -fsanitize=fuzzer,address,undefined")
+	set(COMPILATION_FLAGS_ "-g -Wall -O0 -fsanitize=fuzzer,address,undefined")
 else()
 	set(COMPILATION_FLAGS_ "$ENV{LIB_FUZZING_ENGINE} $ENV{CXXFLAGS}")
 endif()
@@ -41,8 +41,13 @@ string(REPLACE " " ";" COMPILATION_FLAGS ${COMPILATION_FLAGS_})
 
 include(extra/TxParser.cmake)
 
+add_executable(fuzz_base26_encoder fuzz_base26_encoder.c)
 add_executable(fuzz_tx_parser fuzz_tx_parser.c)
 
 target_compile_options(fuzz_tx_parser PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_tx_parser PUBLIC ${COMPILATION_FLAGS})
 target_link_libraries(fuzz_tx_parser PUBLIC txparser)
+
+target_compile_options(fuzz_base26_encoder PUBLIC ${COMPILATION_FLAGS})
+target_link_options(fuzz_base26_encoder PUBLIC ${COMPILATION_FLAGS})
+target_link_libraries(fuzz_base26_encoder PUBLIC txparser)

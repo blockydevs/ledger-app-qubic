@@ -40,8 +40,14 @@ make -C build
 
 ### Run
 
-```console
+```shell
 ./build/fuzz_tx_parser
+```
+
+Or 
+
+```shell
+./build/fuzz_base26_encoder
 ```
 
 ## Full usage based on `clusterfuzzlite` container

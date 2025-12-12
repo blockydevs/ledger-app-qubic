@@ -105,6 +105,12 @@ ECCRYPTO_STATUS SchnorrQ_Sign(const unsigned char *SecretKey, const unsigned cha
     from_Montgomery(S, S); // Converting back to standard representation
     subtract_mod_order((digit_t *) r, S, S);
 
+    explicit_bzero(&k, sizeof(k));
+    explicit_bzero(&r, sizeof(r));
+    explicit_bzero(&h, sizeof(h));
+    explicit_bzero(&temp, sizeof(temp));
+    explicit_bzero(&R, sizeof(R));
+
     return ECCRYPTO_SUCCESS;
 }
 

@@ -78,7 +78,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         return io_send_sw(SW_WRONG_TX_LENGTH);
     }
 
-    if (!buffer_move(cdata, G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len, cdata->size)) {
+    if (!buffer_move(cdata, G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len, cdata->size - cdata->offset)) {
         return io_send_sw(SW_TX_PARSING_FAIL);
     }
 

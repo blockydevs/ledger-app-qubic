@@ -32,5 +32,8 @@ uint8_t derive_qubic_keypair(const qubic_keypair_t *qubic_keypair) {
 
     SchnorrQ_KeyGeneration(qubic_keypair->subseed, (uint8_t *) qubic_keypair->public_key);
 
+    explicit_bzero(&raw_private_key, sizeof(raw_private_key));
+    explicit_bzero(&seed, sizeof(seed));
+
     return 0;
 }
