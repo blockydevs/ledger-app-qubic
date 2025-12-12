@@ -15,15 +15,12 @@ def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
     if firmware.name == 'flex':
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
+            NavInsID.USE_CASE_SETTINGS_NEXT,
             NavIns(NavInsID.TOUCH, (200, 113)),
-            NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400))
         ]
     elif firmware.name == 'stax':
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
-            NavIns(NavInsID.TOUCH, (200, 113)),
-            NavIns(NavInsID.TOUCH, (200, 261)),
             NavIns(NavInsID.TOUCH, (200, 400))
         ]
     else:
@@ -115,7 +112,8 @@ def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navi
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavIns(NavInsID.TOUCH, (200, 113)),
             NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400))
+            NavInsID.USE_CASE_SETTINGS_NEXT,
+            NavIns(NavInsID.TOUCH, (200, 113))
         ]
     elif firmware.name == 'stax':
         instructions = [
@@ -251,7 +249,8 @@ def test_sign_tx_short_tx_blind_sign_refused(firmware, navigator, backend, scena
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavIns(NavInsID.TOUCH, (200, 113)),
             NavIns(NavInsID.TOUCH, (200, 300)),
-            NavIns(NavInsID.TOUCH, (200, 400))
+            NavInsID.USE_CASE_SETTINGS_NEXT,
+            NavIns(NavInsID.TOUCH, (200, 113))
         ]
     elif firmware.name == 'stax':
         instructions = [
