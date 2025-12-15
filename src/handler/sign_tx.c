@@ -93,7 +93,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         return io_send_sw(SW_OK);
     }
 
-    //Rewind the offset
+    // Rewind the offset
     buffer_t tx_buf = {
         .ptr = G_context.tx_info.raw_tx,
         .size = G_context.tx_info.raw_tx_len,
