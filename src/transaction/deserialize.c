@@ -18,7 +18,7 @@
 
 #include "deserialize.h"
 #include "types.h"
-#include "io.h"
+#include <string.h>
 
 #include <globals.h>
 

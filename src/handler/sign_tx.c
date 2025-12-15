@@ -78,20 +78,28 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         return io_send_sw(SW_WRONG_TX_LENGTH);
     }
 
-    if (!buffer_move(cdata, G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len, cdata->size)) {
+    const size_t remaining = cdata->size - cdata->offset;
+    if (!buffer_move(cdata, G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len, remaining)) {
         return io_send_sw(SW_TX_PARSING_FAIL);
     }
 
     // Add the length of the incoming transaction body, and if it is the first chunk, exclude the
     // derivation path prefix
-    G_context.tx_info.raw_tx_len += (cdata->size - cdata->offset);
+    G_context.tx_info.raw_tx_len += remaining;
 
     if (more) {
         // more APDUs with transaction part are expected.
         // Send an SW_OK to signal that we have received the chunk
         return io_send_sw(SW_OK);
     }
-    const parser_status_e status = deserialize_transaction(cdata);
+
+    // Rewind the offset
+    buffer_t tx_buf = {
+        .ptr = G_context.tx_info.raw_tx,
+        .size = G_context.tx_info.raw_tx_len,
+        .offset = 0,
+    };
+    const parser_status_e status = deserialize_transaction(&tx_buf);
 
     kangaroo_twelve(G_context.tx_info.raw_tx,
                     G_context.tx_info.raw_tx_len,

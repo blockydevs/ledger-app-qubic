@@ -1,17 +1,23 @@
-#include <stdio.h>
+// Fuzz target for deserialize_transaction
+#include <stdint.h>
 #include <string.h>
 
-#include "../src/utils.h"
+#include "../src/transaction/deserialize.h"
+#include "../src/globals.h"
+
+// Provide the global context expected by the app
+global_ctx_t G_context;
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    char seed[55] = {0};
+    buffer_t buf = {0};
+    buf.ptr = (uint8_t *) data;
+    buf.offset = 0;
+    buf.size = size;
 
-    int result = encode_base26(data, size, seed, 55);
+    // Reset context to a known state
+    memset(&G_context, 0, sizeof(G_context));
 
-    if (result == 0 && strcmp(seed, "eiszcqa") == 0) {
-        printf("%s\n", seed);
-        return 0;
-    }
+    (void) deserialize_transaction(&buf);
 
     return 0;
 }

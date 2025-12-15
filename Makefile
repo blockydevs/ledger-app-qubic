@@ -42,6 +42,7 @@ ICON_NANOX = icons/app_qubic_14px.gif
 ICON_NANOSP = icons/app_qubic_14px.gif
 ICON_STAX = icons/app_qubic_32px.gif
 ICON_FLEX = icons/app_qubic_40px.gif
+ICON_APEX_P = icons/app_qubic_32px.gif
 
 # Application allowed derivation curves.
 # Possibles curves are: secp256k1, secp256r1, ed25519 and bls12381g1
