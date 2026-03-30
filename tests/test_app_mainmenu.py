@@ -31,5 +31,15 @@ def test_app_mainmenu(firmware, navigator, test_name, default_screenshot_path):
             NavInsID.USE_CASE_SETTINGS_NEXT,
             NavInsID.USE_CASE_SETTINGS_MULTI_PAGE_EXIT
         ]
+    elif firmware is Firmware.APEX_P:
+        instructions = [
+            NavInsID.USE_CASE_HOME_SETTINGS,
+
+            NavIns(NavInsID.TOUCH, (270, 390)),
+            NavIns(NavInsID.TOUCH, (200, 390)),
+
+            NavIns(NavInsID.TOUCH, (35, 35)),
+        ]
+    
     navigator.navigate_and_compare(default_screenshot_path, test_name, instructions,
                                    screen_change_before_first_instruction=False)

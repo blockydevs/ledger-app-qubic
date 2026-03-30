@@ -12,7 +12,7 @@ def test_sign_tx_expert_mode(firmware, backend, scenario_navigator, navigator):
 
     # given
 
-    if firmware.name == 'flex':
+    if firmware.name in ('flex', 'apex_p'):
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavInsID.USE_CASE_SETTINGS_NEXT,
@@ -107,7 +107,13 @@ def test_sign_tx_short_tx_blind_sign(firmware, navigator, backend, scenario_navi
 
     # given
 
-    if firmware.name == 'flex':
+    if firmware.name == 'apex_p' :
+        instructions = [
+            NavInsID.USE_CASE_HOME_SETTINGS,
+            NavIns(NavInsID.TOUCH, (270, 125)),
+            NavIns(NavInsID.TOUCH, (35, 35)),
+        ]
+    elif firmware.name == 'flex':
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavIns(NavInsID.TOUCH, (200, 113)),
@@ -244,7 +250,13 @@ def test_sign_tx_short_tx_blind_sign_refused(firmware, navigator, backend, scena
                                              test_name, default_screenshot_path):
     # given
 
-    if firmware.name == 'flex':
+    if firmware.name == 'apex_p' :
+        instructions = [
+            NavInsID.USE_CASE_HOME_SETTINGS,
+            NavIns(NavInsID.TOUCH, (270, 125)),
+            NavIns(NavInsID.TOUCH, (35, 35)),
+        ]
+    elif firmware.name == 'flex':
         instructions = [
             NavInsID.USE_CASE_HOME_SETTINGS,
             NavIns(NavInsID.TOUCH, (200, 113)),
